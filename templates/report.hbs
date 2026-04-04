@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>citeops Report — {{report.url}}</title>
+  <style>
+    :root {
+      --bg: #f8f9fa;
+      --surface: #ffffff;
+      --border: #e0e0e0;
+      --text: #1a1a1a;
+      --text-secondary: #5f6368;
+      --pass: #0cce6b;
+      --fail: #ff4e42;
+      --warn: #ffa400;
+      --poor: #ff4e42;
+      --needs-improvement: #ffa400;
+      --good: #0cce6b;
+      --excellent: #0cce6b;
+      --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+      --radius: 8px;
+      --shadow: 0 1px 3px rgba(0,0,0,.12), 0 1px 2px rgba(0,0,0,.08);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    /* ── HEADER ── */
+    .header {
+      background: #1a1a2e;
+      color: #fff;
+      padding: 20px 0;
+    }
+    .header-inner {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .logo { font-size: 1.4rem; font-weight: 700; letter-spacing: -0.5px; }
+    .logo span { color: #7c3aed; }
+    .header-url {
+      font-size: .85rem;
+      color: rgba(255,255,255,.6);
+      word-break: break-all;
+    }
+    .header-meta {
+      margin-left: auto;
+      text-align: right;
+      font-size: .8rem;
+      color: rgba(255,255,255,.5);
+    }
+
+    /* ── LAYOUT ── */
+    .container { max-width: 1080px; margin: 0 auto; padding: 32px 24px; }
+
+    /* ── SCORE SUMMARY ── */
+    .score-summary {
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 32px;
+      margin-bottom: 32px;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 32px;
+      align-items: center;
+    }
+
+    .gauge-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+    .gauge-wrap.composite { grid-column: 1; }
+
+    .gauge-label {
+      font-size: .75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--text-secondary);
+    }
+
+    .gauge {
+      position: relative;
+      width: 140px;
+      height: 140px;
+    }
+    .gauge svg { transform: rotate(-90deg); }
+    .gauge-track { fill: none; stroke: #e8eaed; stroke-width: 8; }
+    .gauge-fill { fill: none; stroke-width: 8; stroke-linecap: round; transition: stroke-dashoffset .6s ease; }
+    .gauge-score {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .gauge-number {
+      font-size: 2.2rem;
+      font-weight: 700;
+      line-height: 1;
+    }
+    .gauge-band {
+      font-size: .7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      margin-top: 2px;
+    }
+
+    .gauge.small { width: 100px; height: 100px; }
+    .gauge.small .gauge-number { font-size: 1.6rem; }
+    .gauge.small .gauge-band { font-size: .6rem; }
+
+    .sub-scores {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      grid-column: 2 / 4;
+    }
+    .sub-score-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .sub-score-info { flex: 1; }
+    .sub-score-name { font-size: .9rem; font-weight: 600; }
+    .sub-score-desc { font-size: .78rem; color: var(--text-secondary); }
+    .progress-bar-wrap { width: 220px; }
+    .progress-bar {
+      height: 8px;
+      background: #e8eaed;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width .6s ease;
+    }
+    .progress-label {
+      font-size: .8rem;
+      font-weight: 600;
+      margin-top: 4px;
+      text-align: right;
+    }
+
+    /* ── SECTION CARDS ── */
+    .section {
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      margin-bottom: 24px;
+      overflow: hidden;
+    }
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 24px;
+      cursor: pointer;
+      user-select: none;
+      border-bottom: 1px solid var(--border);
+    }
+    .section-header:hover { background: #f5f5f5; }
+    .section-title { font-size: 1rem; font-weight: 600; }
+    .section-count {
+      font-size: .75rem;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 12px;
+      background: #e8eaed;
+      color: var(--text-secondary);
+    }
+    .section-count.fail-count { background: #fce8e6; color: var(--fail); }
+    .section-count.pass-count { background: #e6f4ea; color: var(--pass); }
+    .chevron {
+      margin-left: auto;
+      font-size: 1rem;
+      color: var(--text-secondary);
+      transition: transform .2s;
+    }
+    .section-body { padding: 0; }
+    .section-body.collapsed { display: none; }
+
+    /* ── AUDIT ROWS ── */
+    .audit-item {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border);
+    }
+    .audit-item:last-child { border-bottom: none; }
+
+    .audit-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+    .audit-status-badge {
+      flex-shrink: 0;
+      font-size: .7rem;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      margin-top: 2px;
+    }
+    .badge-pass { background: #e6f4ea; color: #137333; }
+    .badge-fail { background: #fce8e6; color: #c5221f; }
+    .badge-warn { background: #fef7e0; color: #b06000; }
+
+    .audit-title { font-size: .95rem; font-weight: 600; flex: 1; }
+    .audit-category-tag {
+      font-size: .68rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 10px;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      flex-shrink: 0;
+    }
+    .tag-aeo { background: #e8f0fe; color: #1a73e8; }
+    .tag-geo { background: #fce4ec; color: #c2185b; }
+
+    .audit-evidence {
+      font-size: .82rem;
+      color: var(--text-secondary);
+      padding: 8px 12px;
+      background: #f8f9fa;
+      border-radius: 4px;
+      border-left: 3px solid var(--border);
+      margin: 8px 0;
+      font-family: var(--mono);
+    }
+
+    /* ── RECOMMENDATION BLOCK ── */
+    .recommendation {
+      margin-top: 16px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .rec-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 16px;
+      background: #f8f9fa;
+      border-bottom: 1px solid var(--border);
+    }
+    .rec-header-title { font-size: .8rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--text-secondary); }
+    .priority-badge {
+      font-size: .68rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 10px;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+    }
+    .priority-high { background: #fce8e6; color: #c5221f; }
+    .priority-medium { background: #fef7e0; color: #b06000; }
+    .priority-low { background: #e8f0fe; color: #1a73e8; }
+
+    .score-impact {
+      margin-left: auto;
+      font-size: .78rem;
+      font-weight: 600;
+      color: var(--pass);
+    }
+
+    .rec-body { padding: 14px 16px; }
+    .rec-instruction {
+      font-size: .88rem;
+      color: var(--text);
+      margin-bottom: 12px;
+      line-height: 1.6;
+    }
+
+    .code-block {
+      background: #1a1a2e;
+      color: #e8e8e8;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .code-block-header {
+      display: flex;
+      align-items: center;
+      padding: 8px 14px;
+      background: rgba(255,255,255,.05);
+      border-bottom: 1px solid rgba(255,255,255,.1);
+      font-size: .72rem;
+      color: rgba(255,255,255,.5);
+      font-family: var(--mono);
+    }
+    .copy-btn {
+      margin-left: auto;
+      background: rgba(255,255,255,.1);
+      border: none;
+      color: rgba(255,255,255,.7);
+      font-size: .72rem;
+      padding: 3px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: var(--font);
+    }
+    .copy-btn:hover { background: rgba(255,255,255,.2); }
+    .code-block pre {
+      padding: 14px;
+      font-size: .82rem;
+      font-family: var(--mono);
+      white-space: pre;
+      overflow-x: auto;
+      line-height: 1.5;
+      color: #e8e8e8;
+    }
+
+    /* ── PASSED SECTION ── */
+    .passed-section .section-header { cursor: pointer; }
+    .audit-item.passed .audit-title { color: var(--text-secondary); }
+
+    /* ── FOOTER ── */
+    .footer {
+      text-align: center;
+      padding: 32px 24px;
+      color: var(--text-secondary);
+      font-size: .8rem;
+      border-top: 1px solid var(--border);
+      margin-top: 40px;
+    }
+    .footer a { color: #7c3aed; text-decoration: none; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 720px) {
+      .score-summary { grid-template-columns: 1fr; }
+      .sub-scores { grid-column: 1; }
+      .progress-bar-wrap { width: 140px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <div>
+      <div class="logo">cite<span>ops</span></div>
+      <div class="header-url">{{report.url}}</div>
+    </div>
+    <div class="header-meta">
+      Generated {{generatedAt}}<br />
+      citeops v1.0
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- SCORE SUMMARY -->
+  <div class="score-summary">
+    <div class="gauge-wrap composite">
+      <div class="gauge-label">Composite Score</div>
+      <div class="gauge">
+        <svg viewBox="0 0 120 120" width="140" height="140">
+          <circle class="gauge-track" cx="60" cy="60" r="54" />
+          <circle
+            class="gauge-fill"
+            cx="60" cy="60" r="54"
+            stroke="{{scoreColor}}"
+            stroke-dasharray="339.3"
+            stroke-dashoffset="{{gaugeOffset report.scores.composite}}"
+          />
+        </svg>
+        <div class="gauge-score">
+          <span class="gauge-number" style="color: {{scoreColor}}">{{report.scores.composite}}</span>
+          <span class="gauge-band" style="color: {{scoreColor}}">{{bandLabel}}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="sub-scores">
+      <div class="sub-score-row">
+        <div class="gauge small">
+          <svg viewBox="0 0 120 120" width="100" height="100">
+            <circle class="gauge-track" cx="60" cy="60" r="54" />
+            <circle
+              class="gauge-fill"
+              cx="60" cy="60" r="54"
+              stroke="#1a73e8"
+              stroke-dasharray="339.3"
+              stroke-dashoffset="{{gaugeOffset report.scores.aeo}}"
+            />
+          </svg>
+          <div class="gauge-score">
+            <span class="gauge-number" style="color: #1a73e8">{{report.scores.aeo}}</span>
+          </div>
+        </div>
+        <div class="sub-score-info">
+          <div class="sub-score-name">AEO Score</div>
+          <div class="sub-score-desc">Answer Engine Optimization — FAQ schema, direct answers, Q&amp;A density, readability, entities, author</div>
+        </div>
+      </div>
+
+      <div class="sub-score-row">
+        <div class="gauge small">
+          <svg viewBox="0 0 120 120" width="100" height="100">
+            <circle class="gauge-track" cx="60" cy="60" r="54" />
+            <circle
+              class="gauge-fill"
+              cx="60" cy="60" r="54"
+              stroke="#c2185b"
+              stroke-dasharray="339.3"
+              stroke-dashoffset="{{gaugeOffset report.scores.geo}}"
+            />
+          </svg>
+          <div class="gauge-score">
+            <span class="gauge-number" style="color: #c2185b">{{report.scores.geo}}</span>
+          </div>
+        </div>
+        <div class="sub-score-info">
+          <div class="sub-score-name">GEO Score</div>
+          <div class="sub-score-desc">Generative Engine Optimization — topical depth, EEAT, freshness, citations, comparisons, citation likelihood</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FAILING AUDITS / RECOMMENDATIONS -->
+  {{#with (sortByImpact report.audits) as |failures|}}
+  {{#if failures.length}}
+  <div class="section">
+    <div class="section-header" onclick="toggleSection(this)">
+      <span class="section-title">Recommendations</span>
+      <span class="section-count fail-count">{{failures.length}} issues</span>
+      <span class="chevron">▾</span>
+    </div>
+    <div class="section-body">
+      {{#each failures}}
+      <div class="audit-item">
+        <div class="audit-header">
+          <span class="audit-status-badge {{#if (eq status 'fail')}}badge-fail{{else}}badge-warn{{/if}}">
+            {{upper status}}
+          </span>
+          <span class="audit-title">{{title}}</span>
+          <span class="audit-category-tag tag-{{category}}">{{upper category}}</span>
+        </div>
+
+        <div class="audit-evidence">{{evidence}}</div>
+
+        {{#if recommendation}}
+        <div class="recommendation">
+          <div class="rec-header">
+            <span class="rec-header-title">How to fix</span>
+            <span class="priority-badge {{priorityClass recommendation.priority}}">
+              {{capitalize recommendation.priority}} priority
+            </span>
+            <span class="score-impact">+{{recommendation.score_impact}} pts</span>
+          </div>
+          <div class="rec-body">
+            <p class="rec-instruction">{{recommendation.instruction}}</p>
+            {{#if recommendation.code_snippet}}
+            <div class="code-block">
+              <div class="code-block-header">
+                <span>Suggested code</span>
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+              </div>
+              <pre>{{preEscape recommendation.code_snippet}}</pre>
+            </div>
+            {{/if}}
+          </div>
+        </div>
+        {{/if}}
+      </div>
+      {{/each}}
+    </div>
+  </div>
+  {{/if}}
+  {{/with}}
+
+  <!-- PASSED AUDITS -->
+  {{#with (passedAudits report.audits) as |passed|}}
+  {{#if passed.length}}
+  <div class="section passed-section">
+    <div class="section-header" onclick="toggleSection(this)">
+      <span class="section-title">Passed Audits</span>
+      <span class="section-count pass-count">{{passed.length}} passed</span>
+      <span class="chevron" style="transform: rotate(-90deg)">▾</span>
+    </div>
+    <div class="section-body collapsed">
+      {{#each passed}}
+      <div class="audit-item passed">
+        <div class="audit-header">
+          <span class="audit-status-badge badge-pass">PASS</span>
+          <span class="audit-title">{{title}}</span>
+          <span class="audit-category-tag tag-{{category}}">{{upper category}}</span>
+        </div>
+        <div class="audit-evidence">{{evidence}}</div>
+      </div>
+      {{/each}}
+    </div>
+  </div>
+  {{/if}}
+  {{/with}}
+
+</div>
+
+<div class="footer">
+  Generated by <a href="https://github.com/yourusername/llm-citeops" target="_blank">llm-citeops</a> · {{generatedAt}}
+</div>
+
+<script>
+  function toggleSection(header) {
+    const body = header.nextElementSibling;
+    const chevron = header.querySelector('.chevron');
+    const isCollapsed = body.classList.contains('collapsed');
+    body.classList.toggle('collapsed');
+    chevron.style.transform = isCollapsed ? 'rotate(0deg)' : 'rotate(-90deg)';
+  }
+
+  function copyCode(btn) {
+    const pre = btn.closest('.code-block').querySelector('pre');
+    const text = pre.innerText;
+    navigator.clipboard.writeText(text).then(() => {
+      btn.textContent = 'Copied!';
+      setTimeout(() => { btn.textContent = 'Copy'; }, 2000);
+    });
+  }
+</script>
+
+</body>
+</html>

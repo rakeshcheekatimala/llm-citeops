@@ -1,0 +1,29 @@
+{
+  "audit": {
+    "aeo_weight": 0.5,
+    "geo_weight": 0.5,
+    "custom_weights": {
+      "faq_schema": 1.5,
+      "direct_answer": 1.5,
+      "qa_density": 1.5,
+      "readability": 1.0,
+      "named_entities": 1.0,
+      "author_byline": 1.0,
+      "topical_depth": 1.3,
+      "trust_signals": 1.3,
+      "content_freshness": 1.2,
+      "external_links": 1.0,
+      "comparison_content": 1.0,
+      "citation_likelihood": 1.3
+    }
+  },
+  "probe": {
+    "enabled": false,
+    "models": ["gpt4o", "claude"],
+    "cache_ttl_days": 7
+  },
+  "ci": {
+    "threshold": 70,
+    "fail_on_drop": true
+  }
+}

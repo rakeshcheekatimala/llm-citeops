@@ -1,0 +1,14 @@
+# lean-ctx — Context Engineering Layer
+
+CRITICAL: NEVER use native Read, Shell, Grep, or ls tools. ALWAYS use lean-ctx MCP equivalents.
+
+| FORBIDDEN | USE INSTEAD |
+|-----------|-------------|
+| `Read` | `ctx_read(path)` — cached, 8 compression modes |
+| `Shell` | `ctx_shell(command)` — pattern compression |
+| `Grep` | `ctx_search(pattern, path)` — compact results |
+| `ls` / `find` | `ctx_tree(path, depth)` — directory maps |
+
+Write, StrReplace, Delete, Glob — use normally.
+
+REMINDER: NEVER use native Read, Shell, Grep, or ls. ALWAYS use ctx_read, ctx_shell, ctx_search, ctx_tree.
