@@ -6,12 +6,24 @@
   "bin": {
     "llm-citeops": "dist/index.js"
   },
+  "files": [
+    "dist",
+    "templates"
+  ],
   "scripts": {
     "build": "tsup src/cli/index.ts --format cjs --dts --clean --outDir dist",
     "dev": "tsx src/cli/index.ts",
     "lint": "tsc --noEmit"
   },
-  "keywords": ["aeo", "geo", "seo", "cli", "audit", "llm", "ai-optimization"],
+  "keywords": [
+    "aeo",
+    "geo",
+    "seo",
+    "cli",
+    "audit",
+    "llm",
+    "ai-optimization"
+  ],
   "license": "MIT",
   "dependencies": {
     "chalk": "^5.3.0",
@@ -23,7 +35,8 @@
     "marked": "^12.0.0",
     "node-fetch": "^3.3.2",
     "ora": "^8.1.1",
-    "robots-parser": "^3.0.1"
+    "robots-parser": "^3.0.1",
+    "tldts": "^7.0.27"
   },
   "devDependencies": {
     "@types/cheerio": "^0.22.35",
