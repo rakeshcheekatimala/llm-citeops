@@ -1,6 +1,6 @@
 {
   "name": "llm-citeops",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A CLI tool that audits web content for AEO and GEO scores",
   "main": "dist/index.js",
   "bin": {
@@ -8,7 +8,8 @@
   },
   "files": [
     "dist",
-    "templates"
+    "templates",
+    "assets"
   ],
   "scripts": {
     "build": "tsup src/cli/index.ts --format cjs --dts --clean --outDir dist",

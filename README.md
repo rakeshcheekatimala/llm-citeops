@@ -22,7 +22,7 @@ npx llm-citeops audit --help
 
 See what the CLI can do in one screen—inputs, report formats, CI exit codes, and quick-start hints (similar spirit to `lean-ctx gain`):
 
-![llm-citeops overview — terminal capability dashboard](assets/overview.png)
+![llm-citeops overview — terminal capability dashboard](https://raw.githubusercontent.com/rakeshcheekatimala/llm-citeops/main/assets/overview.png)
 
 ```bash
 llm-citeops overview
