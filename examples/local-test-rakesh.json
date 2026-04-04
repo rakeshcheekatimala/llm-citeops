@@ -1,0 +1,182 @@
+{
+  "url": "https://www.rakeshcheekatimala.com/",
+  "timestamp": "2026-04-04T14:33:41.069Z",
+  "scores": {
+    "aeo": 20,
+    "geo": 14,
+    "composite": 17,
+    "band": "poor",
+    "percentile": null
+  },
+  "audits": [
+    {
+      "id": "faq_schema",
+      "category": "aeo",
+      "title": "FAQ / HowTo schema present",
+      "status": "fail",
+      "weight": 1.5,
+      "score": 0,
+      "evidence": "No <script type=\"application/ld+json\"> with @type FAQPage or HowTo found in <head>.",
+      "recommendation": {
+        "priority": "high",
+        "score_impact": 8,
+        "instruction": "Add a FAQPage or HowTo JSON-LD block to your <head>. LLMs heavily weight structured FAQ schema when selecting content to cite in answer responses. Pages without it are deprioritized in AI summaries.",
+        "code_snippet": "<script type=\"application/ld+json\">\n{\n  \"@context\": \"https://schema.org\",\n  \"@type\": \"FAQPage\",\n  \"mainEntity\": [\n    {\n      \"@type\": \"Question\",\n      \"name\": \"What is [your main topic]?\",\n      \"acceptedAnswer\": {\n        \"@type\": \"Answer\",\n        \"text\": \"Provide a concise, factual answer here (2–3 sentences).\"\n      }\n    },\n    {\n      \"@type\": \"Question\",\n      \"name\": \"How does [your topic] work?\",\n      \"acceptedAnswer\": {\n        \"@type\": \"Answer\",\n        \"text\": \"Step-by-step explanation here.\"\n      }\n    }\n  ]\n}\n</script>"
+      }
+    },
+    {
+      "id": "direct_answer",
+      "category": "aeo",
+      "title": "Direct answer in first paragraph",
+      "status": "pass",
+      "weight": 1.5,
+      "score": 1,
+      "evidence": "First paragraph opens with a direct statement: \"Currently based in Singapore with 10+ years of experience building scalable frontend systems and developer tooling. I've shipped products across payme…\""
+    },
+    {
+      "id": "qa_density",
+      "category": "aeo",
+      "title": "Q&A density (questions per 500 words)",
+      "status": "fail",
+      "weight": 1.5,
+      "score": 0,
+      "evidence": "Only 0 question(s) in 67 words (0.0 per 500 words — target ≥2). Add question-framed headings or FAQ sections.",
+      "recommendation": {
+        "priority": "high",
+        "score_impact": 8,
+        "instruction": "Add question-framed H2 and H3 headings throughout your content. Aim for at least 2 questions per 500 words. Question headings signal AEO readiness and give LLMs clear anchors for answer extraction.",
+        "code_snippet": "<!-- Add question headings like these based on your topic -->\n<h2>What is [Topic] and how does it work?</h2>\n<h2>When should you use [Topic]?</h2>\n<h3>What are the common mistakes with [Topic]?</h3>\n<h3>How is [Topic] different from [Alternative]?</h3>\n<h2>Is [Topic] right for your use case?</h2>"
+      }
+    },
+    {
+      "id": "readability",
+      "category": "aeo",
+      "title": "Readability grade ≤ 10",
+      "status": "fail",
+      "weight": 1,
+      "score": 0,
+      "evidence": "Flesch-Kincaid grade level: 14.1 (target ≤10). Avg 10.2 words/sentence — simplify long sentences.",
+      "recommendation": {
+        "priority": "medium",
+        "score_impact": 5,
+        "instruction": "Simplify long, complex sentences to bring your Flesch-Kincaid grade level to ≤10. Split sentences longer than 25 words into two. Replace jargon with plain-language equivalents. LLMs prefer content that reads at a general audience level.",
+        "code_snippet": "<!-- Before (grade 14+) -->\n<p>The implementation of a comprehensive content optimization strategy that simultaneously\naddresses both the technical and editorial dimensions of AI-driven search visibility\nrepresents a paradigm shift in how organizations approach digital content architecture.</p>\n\n<!-- After (grade 8) -->\n<p>Optimizing content for AI search requires two things: strong technical structure and\nclear writing. When you address both, your pages are more likely to appear in AI-generated\nanswers. This is a new approach to content strategy.</p>"
+      }
+    },
+    {
+      "id": "named_entities",
+      "category": "aeo",
+      "title": "Named entity coverage",
+      "status": "fail",
+      "weight": 1,
+      "score": 0,
+      "evidence": "Weak named entity coverage — only 1 entity type(s) detected. Places: Singapore. Missing: people, organizations.",
+      "recommendation": {
+        "priority": "medium",
+        "score_impact": 5,
+        "instruction": "Add named entities (people, organizations, places) throughout your content. LLMs use named entities to verify a page's authority and topical relevance. Include expert names, company names, research institutions, and geographic contexts relevant to your topic.",
+        "code_snippet": "<!-- Add entity-rich context to your content -->\n<p>According to <span itemprop=\"name\">Jane Smith</span>, Head of Research at\n<span itemprop=\"name\">Acme Corp</span>, the approach was first developed\nat <span itemprop=\"name\">MIT</span> in 2019.</p>\n\n<!-- Or in JSON-LD -->\n<script type=\"application/ld+json\">\n{\n  \"@context\": \"https://schema.org\",\n  \"@type\": \"Article\",\n  \"about\": {\n    \"@type\": \"Thing\",\n    \"name\": \"[Your main topic]\"\n  },\n  \"mentions\": [\n    { \"@type\": \"Person\", \"name\": \"Expert Name\" },\n    { \"@type\": \"Organization\", \"name\": \"Relevant Organization\" }\n  ]\n}\n</script>"
+      }
+    },
+    {
+      "id": "author_byline",
+      "category": "aeo",
+      "title": "Author byline + credentials present",
+      "status": "fail",
+      "weight": 1,
+      "score": 0,
+      "evidence": "No author byline found. Missing: rel=\"author\", itemprop=\"author\", JSON-LD author field, or <meta name=\"author\">.",
+      "recommendation": {
+        "priority": "medium",
+        "score_impact": 5,
+        "instruction": "Add an author byline with credentials. LLMs evaluate EEAT (Experience, Expertise, Authoritativeness, Trustworthiness) signals. Pages with identified authors rank higher in AI citation selection.",
+        "code_snippet": "<!-- HTML author markup -->\n<span rel=\"author\" itemprop=\"author\" itemscope itemtype=\"https://schema.org/Person\">\n  <span itemprop=\"name\">Author Name</span>,\n  <span itemprop=\"jobTitle\">Senior Engineer</span> at\n  <span itemprop=\"worksFor\" itemscope itemtype=\"https://schema.org/Organization\">\n    <span itemprop=\"name\">Company Name</span>\n  </span>\n</span>\n\n<!-- JSON-LD author -->\n<script type=\"application/ld+json\">\n{\n  \"@context\": \"https://schema.org\",\n  \"@type\": \"Article\",\n  \"author\": {\n    \"@type\": \"Person\",\n    \"name\": \"Author Name\",\n    \"jobTitle\": \"Your Title\",\n    \"url\": \"https://yoursite.com/about/author\"\n  }\n}\n</script>"
+      }
+    },
+    {
+      "id": "topical_depth",
+      "category": "geo",
+      "title": "Topical depth score (subtopic coverage)",
+      "status": "fail",
+      "weight": 1.3,
+      "score": 0,
+      "evidence": "Only 2/10 key terms appear in headings (20% — target ≥60%). Missing topics: systems, currently, based, singapore, years.",
+      "recommendation": {
+        "priority": "high",
+        "score_impact": 7,
+        "instruction": "Your content's key topic terms are not reflected in your headings. Add H2/H3 sections that cover the main subtopics identified by TF-IDF analysis. Comprehensive topical coverage increases the likelihood LLMs will cite your page as an authoritative source."
+      }
+    },
+    {
+      "id": "trust_signals",
+      "category": "geo",
+      "title": "Trust signals (EEAT) — author, org, sources",
+      "status": "fail",
+      "weight": 1.3,
+      "score": 0,
+      "evidence": "Only 1 EEAT signal(s) found: 6 external sources. Missing: author, publisher, citation schema, publication date.",
+      "recommendation": {
+        "priority": "high",
+        "score_impact": 7,
+        "instruction": "Strengthen EEAT signals by adding missing Schema.org fields. LLMs use structured metadata to evaluate trustworthiness.",
+        "code_snippet": "<script type=\"application/ld+json\">\n{\n  \"@context\": \"https://schema.org\",\n  \"@type\": \"Article\",\n  \"author\": {\n    \"@type\": \"Person\",\n    \"name\": \"Author Name\",\n    \"url\": \"https://yoursite.com/author\"\n  },\n  \"publisher\": {\n    \"@type\": \"Organization\",\n    \"name\": \"Your Organization\",\n    \"url\": \"https://yoursite.com\",\n    \"logo\": {\n      \"@type\": \"ImageObject\",\n      \"url\": \"https://yoursite.com/logo.png\"\n    }\n  },\n  \"datePublished\": \"2024-01-01\",\n  \"dateModified\": \"2024-06-01\",\n  \"citation\": \"https://authoritative-source.com/article\"\n}\n</script>"
+      }
+    },
+    {
+      "id": "content_freshness",
+      "category": "geo",
+      "title": "Content freshness (publish / modified date)",
+      "status": "fail",
+      "weight": 1.2,
+      "score": 0,
+      "evidence": "No publication or modification date found. Missing: dateModified, datePublished, article:published_time, or <time datetime>.",
+      "recommendation": {
+        "priority": "medium",
+        "score_impact": 6,
+        "instruction": "Add or update the dateModified field in your Schema.org markup and Open Graph meta tags. LLMs prefer recent content — pages without a modification date are treated as potentially stale.",
+        "code_snippet": "<!-- Open Graph / Article meta tags -->\n<meta property=\"article:published_time\" content=\"2024-01-15T00:00:00Z\" />\n<meta property=\"article:modified_time\" content=\"2026-04-04T00:00:00Z\" />\n\n<!-- HTML time element -->\n<time datetime=\"2026-04-04\">Last updated: April 4, 2026</time>\n\n<!-- JSON-LD dateModified -->\n<script type=\"application/ld+json\">\n{\n  \"@context\": \"https://schema.org\",\n  \"@type\": \"Article\",\n  \"dateModified\": \"2026-04-04\"\n}\n</script>"
+      }
+    },
+    {
+      "id": "external_links",
+      "category": "geo",
+      "title": "External citation / link quality",
+      "status": "pass",
+      "weight": 1,
+      "score": 1,
+      "evidence": "6 non-nofollow external link(s) found. Examples: Read Articles → (https://rakeshcheekatimala.substack.com), https://x.com/RCheekatim12238 (https://x.com/RCheekatim12238), https://www.linkedin.com/in/rakesh-cheekatimala/ (https://www.linkedin.com/in/rakesh-cheekatimala/)"
+    },
+    {
+      "id": "comparison_content",
+      "category": "geo",
+      "title": "Comparison content present",
+      "status": "fail",
+      "weight": 1,
+      "score": 0,
+      "evidence": "No comparison-oriented content found. No headings with \"vs\", \"alternatives\", \"best\", \"compared to\" patterns, and no comparison tables.",
+      "recommendation": {
+        "priority": "medium",
+        "score_impact": 4,
+        "instruction": "Add a comparison section or 'vs' content to your page. LLMs frequently cite pages that compare options, list alternatives, or rank choices because users commonly ask comparison questions. Consider adding an H2 section like 'How [Topic] compares to alternatives' or a pros/cons table."
+      }
+    },
+    {
+      "id": "citation_likelihood",
+      "category": "geo",
+      "title": "Citation likelihood signals",
+      "status": "fail",
+      "weight": 1.3,
+      "score": 0,
+      "evidence": "Only 1/5 citation signals present: 6 external citations. Missing: JSON-LD schema; author byline; FAQ/HowTo schema; structured headings (H2/H3 ≥3).",
+      "recommendation": {
+        "priority": "high",
+        "score_impact": 7,
+        "instruction": "Your page has a low citation likelihood composite score. Focus on the highest-impact fixes above: (1) add FAQ/HowTo JSON-LD schema, (2) add an author byline, (3) add ≥3 external citations to authoritative sources. These three changes have the largest combined effect on AI citation selection."
+      }
+    }
+  ],
+  "probe": {
+    "enabled": false,
+    "results": []
+  }
+}
