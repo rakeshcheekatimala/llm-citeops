@@ -1,0 +1,163 @@
+import chalk from 'chalk';
+
+const c = {
+  cyan: chalk.cyan,
+  green: chalk.green,
+  blue: chalk.blue,
+  yellow: chalk.yellow,
+  magenta: chalk.magenta,
+  dim: chalk.dim,
+  bold: chalk.bold,
+  white: chalk.white,
+};
+
+function stripAnsi(s: string): string {
+  return s.replace(/\u001b\[[0-9;]*m/g, '');
+}
+
+function padInner(inner: string, width: number): string {
+  const n = stripAnsi(inner).length;
+  return n >= width ? inner : inner + ' '.repeat(width - n);
+}
+
+/** Terminal dashboard: what llm-citeops offers (aligned with README). */
+export function runOverview(version: string): void {
+  const W = 58;
+  const indent = '  ';
+  const line = (inner: string) =>
+    indent + c.cyan('│') + padInner(inner, W) + c.cyan('│');
+  const sep = indent + c.cyan('├' + '─'.repeat(W) + '┤');
+  const boxTop = indent + c.cyan('╭' + '─'.repeat(W) + '╮');
+  const boxBot = indent + c.cyan('╰' + '─'.repeat(W) + '╯');
+
+  console.log('');
+  console.log(
+    c.cyan(
+      [
+        '  ██████╗██╗████████╗███████╗ ██████╗ ██████╗ ███████╗',
+        ' ██╔════╝██║╚══██╔══╝██╔════╝██╔═══██╗██╔══██╗██╔════╝',
+        ' ██║     ██║   ██║   █████╗  ██║   ██║██████╔╝███████╗',
+        ' ██║     ██║   ██║   ██╔══╝  ██║   ██║██╔═══╝ ╚════██║',
+        ' ╚██████╗██║   ██║   ███████╗╚██████╔╝██║     ███████║',
+        '  ╚═════╝╚═╝   ╚═╝   ╚══════╝ ╚═════╝ ╚═╝     ╚══════╝',
+      ].join('\n')
+    )
+  );
+  console.log('');
+  console.log(
+    c.dim('  ') +
+      c.bold.white('llm-citeops') +
+      c.dim(` v${version}  ·  `) +
+      c.cyan('Lighthouse-style AEO & GEO audits')
+  );
+  console.log(
+    c.dim(
+      '  Score pages for Answer Engine + Generative Engine optimization · HTML, JSON, CSV'
+    )
+  );
+  console.log('');
+
+  console.log(boxTop);
+  console.log(line(` ${c.bold.white('✦')} ${c.cyan('citeops capability dashboard')}`));
+  console.log(sep);
+
+  const padVal = (colored: string, target: number) => {
+    const n = stripAnsi(colored).length;
+    return n >= target ? colored : colored + ' '.repeat(target - n);
+  };
+
+  const stat = (label: string, value: string, color: typeof chalk.green) =>
+    line(` ${padVal(color(value), 26)}  ${c.dim(label)}`);
+
+  console.log(stat('automated checks', '12', c.green));
+  console.log(stat('report formats', 'html · json · csv', c.blue));
+  console.log(stat('input modes', 'url · file · dir · sitemap', c.yellow));
+  console.log(stat('CI exit codes', '0 · 1 · 2 · 3', c.magenta));
+  console.log(boxBot);
+  console.log('');
+
+  console.log(c.bold.white('  What it does'));
+  console.log(
+    c.dim(
+      '  Read-only fetch of public URLs (robots-aware) or local .md / .html, run heuristics,')
+  );
+  console.log(
+    c.dim(
+      '  emit composite + AEO + GEO scores, pass/fail detail, and prioritized recommendations.')
+  );
+  console.log('');
+
+  console.log(c.bold.white('  Inputs & when to use them'));
+  const bar = (pct: number, width = 28) => {
+    const filled = Math.round((pct / 100) * width);
+    const empty = width - filled;
+    return c.cyan('█'.repeat(filled)) + c.dim('░'.repeat(empty));
+  };
+
+  const row = (name: string, pct: number, note: string) => {
+    const left = `  ${c.white(name.padEnd(14))} ${bar(pct)} `;
+    console.log(left + c.dim(note));
+  };
+
+  row('--url', 100, 'single live page');
+  row('--file', 85, 'offline markdown or HTML');
+  row('--dir', 70, 'batch local content');
+  row('--sitemap', 90, 'many URLs (robots unless --ignore-robots)');
+  console.log('');
+
+  console.log(c.bold.white('  Outputs'));
+  console.log(boxTop);
+  console.log(
+    line(` ${c.green('html')}${c.dim('  default · single-file visual report')}`)
+  );
+  console.log(
+    line(` ${c.blue('json')}${c.dim('  automation, CI artifacts, tooling')}`)
+  );
+  console.log(
+    line(
+      ` ${c.yellow('csv')}${c.dim('  one row per URL · dir / sitemap batches')}`
+    )
+  );
+  console.log(boxBot);
+  console.log('');
+
+  console.log(c.bold.white('  CI mode (exit semantics)'));
+  console.log(
+    `  ${c.green('0')}  ${c.dim('success · audit finished; with --ci, composite ≥ threshold')}`
+  );
+  console.log(
+    `  ${c.yellow('1')}  ${c.dim('CI fail · --ci and composite below --threshold (default 70)')}`
+  );
+  console.log(
+    `  ${c.magenta('2')}  ${c.dim('crawl / network error (e.g. sitemap 404, blocked fetch)')}`
+  );
+  console.log(
+    `  ${chalk.red('3')}  ${c.dim('invalid input or config')}`
+  );
+  console.log('');
+
+  console.log(c.bold.white('  Configuration'));
+  console.log(
+    c.dim(
+      '  Optional `.citeops.json` in project or home; override with `--config <path>`.'
+    )
+  );
+  console.log(
+    c.dim(
+      '  Crawl tuning: `--depth`, `--rate` (req/s), `--ignore-robots`.'
+    )
+  );
+  console.log('');
+
+  console.log(
+    c.yellow('  💡 ') +
+      c.dim('Quick start: ') +
+      c.cyan('llm-citeops audit --url "https://yoursite.com" --output html --output-path ./report.html')
+  );
+  console.log(
+    c.dim(
+      '     Local smoke:  llm-citeops audit --file ./README.md --output json'
+    )
+  );
+  console.log('');
+}

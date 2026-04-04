@@ -18,6 +18,17 @@ Or run without a global install:
 npx llm-citeops audit --help
 ```
 
+## Capability dashboard (terminal)
+
+See what the CLI can do in one screen—inputs, report formats, CI exit codes, and quick-start hints (similar spirit to `lean-ctx gain`):
+
+![llm-citeops overview — terminal capability dashboard](assets/overview.png)
+
+```bash
+llm-citeops overview
+# or: llm-citeops info
+```
+
 ## Quick start
 
 ```bash
@@ -128,6 +139,8 @@ node dist/index.js audit --url "https://developer.mozilla.org/en-US/docs/Web/Jav
 ## Command reference
 
 ```text
+llm-citeops overview   (alias: info) — terminal capability dashboard
+
 llm-citeops audit [options]
 
   --url <url>           Single URL
@@ -157,3 +170,4 @@ MIT
 ## Disclaimer
 
 **llm-citeops** fetches public URLs read-only. Respect each site’s **robots.txt**, **terms of use**, and **rate limits**. You are responsible for compliant use. This tool does not imply endorsement by any third-party site used in examples or tests.
+

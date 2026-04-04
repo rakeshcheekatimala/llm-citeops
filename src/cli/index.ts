@@ -1,17 +1,40 @@
 #!/usr/bin/env node
 
+import { readFileSync } from 'fs';
+import { join } from 'path';
 import { Command } from 'commander';
 import { runAudit } from './commands/audit.js';
+import { runOverview } from './commands/overview.js';
 import { AuditOptions, OutputFormat } from '../types/index.js';
 
+function readVersion(): string {
+  try {
+    const pkgPath = join(__dirname, '..', 'package.json');
+    return JSON.parse(readFileSync(pkgPath, 'utf8')).version as string;
+  } catch {
+    return '1.0.0';
+  }
+}
+
 const program = new Command();
+const version = readVersion();
 
 program
   .name('llm-citeops')
   .description(
     'Lighthouse-inspired CLI tool that audits web content for AEO and GEO scores'
   )
-  .version('1.0.0');
+  .version(version);
+
+program
+  .command('overview')
+  .description(
+    'Print a terminal capability dashboard (inputs, outputs, CI codes, tips)'
+  )
+  .alias('info')
+  .action(() => {
+    runOverview(version);
+  });
 
 program
   .command('audit')
