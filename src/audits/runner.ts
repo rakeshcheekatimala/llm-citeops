@@ -18,9 +18,10 @@ import { auditCitationLikelihood } from './geo/citation-likelihood.js';
 export function runAudits(page: PageContent): AuditResult[] {
   const $ = cheerio.load(page.html);
 
-  // Extract plain text — remove script/style
-  $('script, style, noscript').remove();
-  const text = $('body').text().replace(/\s+/g, ' ').trim();
+  // Plain text for NLP/heuristics — clone so script/style stay in `$` for schema audits
+  const textRoot = $('body').length ? $('body').clone() : $.root().clone();
+  textRoot.find('script, style, noscript').remove();
+  const text = textRoot.text().replace(/\s+/g, ' ').trim();
 
   const ctx: AuditContext = {
     url: page.url,
