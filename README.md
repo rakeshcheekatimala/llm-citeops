@@ -253,6 +253,26 @@ Coverage artifacts are written to:
 - [coverage/report.md](/Users/rakeshcheekatimala/Desktop/Learnings/llm-citeops/coverage/report.md)
 - [coverage/summary.json](/Users/rakeshcheekatimala/Desktop/Learnings/llm-citeops/coverage/summary.json)
 
+## Releases
+
+Releases are automated with `semantic-release` from `main`.
+
+Version bumps follow conventional commits:
+
+- `fix:` for patch releases
+- `feat:` for minor releases
+- `feat!:` or `BREAKING CHANGE:` for major releases
+
+Preview the next version locally:
+
+```bash
+npm run release:dry-run
+```
+
+`semantic-release` itself requires Node 24 for the release step, so the local dry run uses an ephemeral Node 24 runtime even if day-to-day development stays on Node 18 or 20.
+
+The release workflow runs typecheck, build, and tests, then publishes to npm and creates a GitHub release when the commit history since the last tag contains a releasable change.
+
 ## Project health
 
 Latest verified local snapshot on `2026-04-10`:

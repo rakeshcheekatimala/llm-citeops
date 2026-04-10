@@ -138,4 +138,13 @@ If you open an issue or PR, helpful context includes:
 
 ## Release notes
 
-Maintainers publish from tags and the release workflow described in `README.md`. If your change affects users, add enough context in the PR so release notes can be written quickly.
+Releases are automated with `semantic-release` from `main`.
+
+Please use conventional commits for any change that should influence the published version:
+
+- `fix:` for a patch release
+- `feat:` for a minor release
+- `feat!:` or a `BREAKING CHANGE:` footer for a major release
+- `docs:`, `test:`, and `chore:` for changes that should not publish by themselves
+
+If your change affects users, include enough context in the PR description for the generated GitHub release notes to stay readable.

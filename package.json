@@ -19,11 +19,16 @@
     "templates",
     "assets"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "tsup src/cli/index.ts --format cjs --dts --clean --outDir dist",
     "build:test": "node -e \"require('fs').rmSync('.test-dist',{recursive:true,force:true})\" && tsc --outDir .test-dist --declaration false --declarationMap false --sourceMap false",
     "dev": "tsx src/cli/index.ts",
     "lint": "tsc --noEmit",
+    "release": "semantic-release",
+    "release:dry-run": "npx -p node@v24 -c \"semantic-release --dry-run --no-ci\"",
     "test": "npm run build:test && node --import tsx --test $(find tests -name '*.test.ts' -print)",
     "test:coverage": "npm run build:test && node ./scripts/run-test-coverage.mjs",
     "size:bundle": "node -e \"console.log(require('fs').statSync('dist/index.js').size + ' bytes')\"",
@@ -56,6 +61,7 @@
     "@types/cheerio": "^0.22.35",
     "@types/handlebars": "^4.1.0",
     "@types/node": "^20.14.0",
+    "semantic-release": "^25.0.0",
     "tsup": "^8.1.0",
     "tsx": "^4.15.7",
     "typescript": "^5.5.2"
