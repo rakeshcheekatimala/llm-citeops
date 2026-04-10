@@ -24,7 +24,6 @@ export async function fetchUrl(
   const timer = setTimeout(() => controller.abort(), timeoutMs);
 
   try {
-    lastFetch = Date.now();
     const res = await fetch(url, { signal: controller.signal as never });
 
     if (!res.ok) {
@@ -32,6 +31,7 @@ export async function fetchUrl(
     }
 
     const html = await res.text();
+    lastFetch = Date.now();
     return { url, html };
   } finally {
     clearTimeout(timer);
