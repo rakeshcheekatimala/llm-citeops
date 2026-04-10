@@ -1,5 +1,7 @@
 node_modules
 dist
+.test-dist
+coverage
 .env
 .env.local
 .env.development.local

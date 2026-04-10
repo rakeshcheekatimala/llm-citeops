@@ -2,245 +2,338 @@
 
 [![npm version](https://img.shields.io/npm/v/llm-citeops.svg)](https://www.npmjs.com/package/llm-citeops)
 
-**llm-citeops** is a Lighthouse-inspired CLI that audits URLs and local files for **AEO** (Answer Engine Optimization) and **GEO** (Generative Engine Optimization). It scores checks, explains failures, and writes **HTML**, **JSON**, or **CSV** reports.
+`llm-citeops` is a Node.js CLI package for auditing web content for AEO and GEO readiness.
 
-Scores come from **deterministic heuristics** (HTML parsing, JSON-LD, link analysis, readability math, and light NLP with [compromise](https://github.com/spencermountain/compromise)) — **not** from calling an LLM judge.
+It is a read-only content audit tool, not a crawler framework or SEO platform. The package takes a page or a batch of pages, runs a fixed rubric of deterministic checks, computes weighted scores, and generates reports with concrete recommendations.
 
 ![HTML audit report — composite, AEO/GEO gauges, and per-check results](assets/report-hero.png)
 
-*Report generated from [`examples/sample.html`](examples/sample.html) in this repo (composite 93, one failing check shown).*
+## What ships today
 
-## What we measure
+The current package surface is intentionally small:
 
-Each row below is one **binary** audit: it **passes (1)** or **fails (0)**. Category scores are a **weighted average** of those outcomes × **100**. The **composite** score blends AEO and GEO (default **50% / 50%**). There is **no percentile** yet (`percentile` is reserved for a future benchmark).
+- `llm-citeops overview`
+- `llm-citeops info`
+- `llm-citeops audit`
 
-**Reading the numbers**
+The main workflow is:
 
-- **~90+ composite** — Most checks pass; strong answer-engine and trust signals relative to this rubric.
-- **~40 composite** — Many checks fail; large gaps versus the checklist (schema, clarity, entities, trust, links, etc.).
-- **AEO vs GEO** — AEO leans toward *how directly* the page answers and reads; GEO toward *depth, trust, citations, and freshness*.
+`collect content -> run 12 audits -> compute AEO/GEO/composite scores -> attach recommendations -> write report`
 
-**Score bands** (applied to **composite**): **0–49** Poor · **50–74** Needs improvement · **75–89** Good · **90–100** Excellent.
+Latest verified local quality snapshot on `2026-04-10`:
 
-**Formula (default weights)**
+- Coverage: `95.06%` lines, `82.33%` branches, `89.07%` functions
+- Test suite: `32/32` passing
+- Coverage gate: `>= 90%` line coverage
 
-```
-AEO  = weighted_avg(pass?1:0 for each AEO audit, per-audit weights) × 100
-GEO  = weighted_avg(pass?1:0 for each GEO audit, per-audit weights) × 100
-Composite = AEO × aeo_weight + GEO × geo_weight   # defaults: 0.5 + 0.5
-```
+## What the package actually audits
 
-Override per-check weights and category blend in **`.citeops.json`**. See the example in this repo.
+`llm-citeops` currently runs 12 checks split across two categories.
 
-### Audit checklist (all 12 checks)
+### AEO checks
 
-| Check | Cat | What we look for | Default weight |
-|-------|-----|------------------|----------------|
-| FAQ / HowTo schema present | AEO | `FAQPage` or `HowTo` in `application/ld+json` | ×1.5 |
-| Direct answer in first paragraph | AEO | First `<p>` opens with a declarative answer (heuristic) | ×1.5 |
-| Q&A density (questions per 500 words) | AEO | Enough `?` in body text vs word count | ×1.5 |
-| Readability grade ≤ 10 | AEO | Flesch–Kincaid grade level on body text | ×1.0 |
-| Named entity coverage | AEO | People / organizations / places via compromise NER | ×1.0 |
-| Author byline + credentials present | AEO | `rel="author"`, `itemprop="author"`, `meta name="author"`, or JSON-LD `author` | ×1.0 |
-| Topical depth score (subtopic coverage) | GEO | Top terms reflected in headings (TF-style coverage) | ×1.3 |
-| Trust signals (EEAT) — author, org, sources | GEO | Author, publisher/org in schema, external sources, dates, etc. | ×1.3 |
-| Content freshness (publish / modified date) | GEO | Recent `article:*`, `<time datetime>`, or JSON-LD dates | ×1.2 |
-| External citation / link quality | GEO | ≥2 non-`nofollow` `http(s)` links off-domain | ×1.0 |
-| Comparison content present | GEO | Comparison-style headings or `<table>` | ×1.0 |
-| Citation likelihood signals | GEO | Bundle of schema, author, FAQ schema, ≥3 external links, heading structure | ×1.3 |
+- FAQ / HowTo schema present
+- direct answer in the first paragraph
+- Q&A density
+- readability grade `<= 10`
+- named entity richness
+- author byline presence
 
-Deeper product notes: [docs/requirements.md](docs/requirements.md).
+### GEO checks
 
-## Requirements
+- topical depth
+- trust signals and EEAT-style metadata
+- content freshness
+- external links to authoritative sources
+- comparison content
+- citation likelihood signals
 
-- **Node.js 18+**
+These checks are implemented as deterministic heuristics over parsed HTML and extracted text. They do not call an LLM to decide whether content passes.
 
-## Try it in one command (no install)
+## Inputs the package supports
 
-From any project with a Markdown or HTML file:
+`llm-citeops audit` can read content from:
+
+- `--url <url>` for a single public page
+- `--file <path>` for one local `.md`, `.markdown`, `.html`, or `.htm` file
+- `--dir <path>` for a top-level directory of local content files
+- `--sitemap <url>` for a remote sitemap or sitemap index
+
+Notable implementation details:
+
+- Markdown files are converted to HTML before auditing.
+- Sitemap indexes are followed recursively.
+- Public URLs are fetched in read-only mode with simple rate limiting.
+- `robots.txt` is respected by default and can be overridden with `--ignore-robots`.
+- The current package does not render JavaScript in a browser, so heavily client-rendered pages may be under-audited.
+
+## Quick start
+
+Run without installing globally:
 
 ```bash
-npx llm-citeops audit --file ./README.md --output html --output-path ./citeops-report.html
+npx llm-citeops overview
 ```
 
-Audit a stable public URL (always **quote** URLs that contain `&`):
-
-```bash
-npx llm-citeops audit --url "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Functions" --output html --output-path ./citeops-report.html
-```
-
-## Install
-
-- **One-off / CI**: use **`npx llm-citeops`** as above (no global install).
-- **Global CLI** (frequent use):
+Install globally:
 
 ```bash
 npm install -g llm-citeops
 ```
 
-## CLI overview (terminal)
-
-Inputs, report formats, CI exit codes, and quick-start hints:
-
-![llm-citeops overview — terminal capability dashboard](https://raw.githubusercontent.com/rakeshcheekatimala/llm-citeops/main/assets/overview.png)
+Audit a single live page:
 
 ```bash
-llm-citeops overview
-# or: llm-citeops info
+llm-citeops audit --url "https://example.com/docs/article" --output html --output-path ./report.html
 ```
 
-## Quick start
+Audit a local file:
 
 ```bash
-# Audit a URL (quote URLs that contain &)
-llm-citeops audit --url "https://example.com/docs/article" --output html --output-path ./report.html
+llm-citeops audit --file ./examples/sample.html --output json --output-path ./report.json
+```
 
-# Audit a local Markdown or HTML file
-llm-citeops audit --file ./content/post.md --output json --output-path ./report.json
+Audit a local content folder:
 
-# Demo fixture in this repo (rich pass/fail mix)
-llm-citeops audit --file ./examples/sample.html --output html --output-path ./citeops-report.html
+```bash
+llm-citeops audit --dir ./examples --output csv --output-path ./batch.csv
+```
 
-# Minimal Markdown fixture
-llm-citeops audit --file ./examples/sample.md --output html --output-path ./citeops-md-report.html
+Audit a sitemap:
 
-# Audit every .md / .html in a folder
-llm-citeops audit --dir ./content --output csv --output-path ./batch.csv
-
-# Sitemap batch (respects robots.txt unless --ignore-robots)
+```bash
 llm-citeops audit --sitemap "https://example.com/sitemap.xml" --output csv --output-path ./site.csv
 ```
 
-## Configuration
+## How scoring works
 
-Optional project or home config: **`.citeops.json`** (see the example in this repo). Override path:
+Each audit returns:
 
-```bash
-llm-citeops audit --url "https://example.com" --config ./my-citeops.json
+- a category: `aeo` or `geo`
+- a status: `pass`, `fail`, or `warn`
+- a binary score used for rollups
+- evidence explaining what was found
+- an optional recommendation when the check does not pass
+
+The package then computes:
+
+- `aeo`
+- `geo`
+- `composite`
+- a band: `poor`, `needs-improvement`, `good`, or `excellent`
+
+By default:
+
+- AEO contributes `0.5`
+- GEO contributes `0.5`
+
+Per-audit weights are also configurable. The built-in default weights emphasize checks such as:
+
+- `faq_schema`
+- `direct_answer`
+- `qa_density`
+- `topical_depth`
+- `trust_signals`
+- `citation_likelihood`
+
+This makes the scoring explainable: you can trace the result back to named checks, visible evidence, and explicit weights.
+
+## Recommendations
+
+When an audit fails or warns, `llm-citeops` attaches a recommendation with:
+
+- priority: `high`, `medium`, or `low`
+- estimated score impact
+- a concrete instruction
+- in some cases, a code snippet
+
+Examples of the built-in recommendation styles include:
+
+- adding FAQPage or HowTo JSON-LD
+- rewriting the first paragraph into a direct answer
+- adding more question-based headings
+- strengthening author and publisher signals
+- adding external citations
+
+## Output formats
+
+The package currently supports:
+
+- `html`
+- `json`
+- `csv`
+
+Use `html` when a person will review the report.
+
+Use `json` when another tool or script will consume it.
+
+Use `csv` for batches, because CSV is the only format that currently emits one row per audited page.
+
+Important current behavior:
+
+- For `--dir` and `--sitemap` runs, `csv` includes all pages.
+- For `--dir` and `--sitemap` runs, `html` and `json` currently write only the first report in the batch.
+
+## Best practices for using the package well
+
+Start with `--file` or `--url` before running batch audits. The recommendations are easier to inspect when you validate the rubric on one known page first.
+
+Use `html` for editorial review and `json` or `csv` for automation. That matches how the package is implemented today.
+
+Use `csv` for any meaningful directory or sitemap run. It is the only batch-safe output right now.
+
+Treat the scores as a prioritization signal, not as a guarantee of search or citation performance. The package is heuristic by design.
+
+Use `--ci` only after you understand your own baseline. The default threshold of `70` is a practical starting point, but it should not be treated as a universal standard.
+
+If you audit live URLs, be deliberate with `--rate` and avoid `--ignore-robots` unless you explicitly control or have permission to crawl the site.
+
+If your site depends on client-side rendering for main content, prefer auditing the underlying HTML output or local source exports because this package does not run a browser.
+
+## Command reference
+
+```text
+llm-citeops overview
+llm-citeops info
+
+llm-citeops audit [options]
+  --url <url>
+  --file <path>
+  --dir <path>
+  --sitemap <url>
+  --output <format>     html | json | csv
+  --output-path <path>
+  --threshold <n>
+  --ci
+  --ignore-robots
+  --depth <n>
+  --rate <n>
+  --config <path>
+  --probe
+  --models <list>
+  --compare <url>
 ```
+
+Notes on flags that exist but are not active yet:
+
+- `--probe` is present, but probe mode is currently stubbed and reports `enabled: false`.
+- `--compare` is present as a future-facing option and is not implemented yet.
+- `--depth` is accepted by the CLI, but the current crawler does not use it yet.
 
 ## CI mode
 
-Exit code **1** if the composite score is below the threshold:
+Use `--ci` to fail a run when the composite score is below the threshold.
 
 ```bash
 llm-citeops audit --url "$DEPLOY_URL" --ci --threshold 70 --output json --output-path ./citeops-report.json
 ```
 
+Exit codes:
+
 | Exit code | Meaning |
 |-----------|---------|
-| 0 | Success (CI pass if `--ci` and score ≥ threshold) |
-| 1 | CI failure (score below threshold) |
-| 2 | Crawl / network error |
+| 0 | Success |
+| 1 | CI failure |
+| 2 | Crawl or runtime error |
 | 3 | Invalid input or config |
 
-## Releasing (maintainers)
+## Configuration
 
-**Automated (recommended)**  
-Push an annotated semver tag **`v*`** (e.g. `v1.0.3`) after bumping `version` in `package.json`. The [Release workflow](.github/workflows/release.yml) runs `lint`, `build`, publishes to npm (**`NPM_TOKEN`** secret), and creates a GitHub Release with generated notes.
+The package loads configuration from:
 
-**Manual**  
-Tag, publish with `npm publish --access public`, then create a GitHub Release from that tag with short notes (highlights + any rubric changes).
+- `--config <path>`
+- `.citeops.json` in the current project
+- `.citeops.json` in the home directory
 
-## How to test (for contributors & pre-publish)
+Example:
 
-Clone the repo, install dependencies, typecheck, build, then run the CLI against a **local file** first (no network, stable).
+```json
+{
+  "audit": {
+    "aeo_weight": 0.5,
+    "geo_weight": 0.5,
+    "custom_weights": {
+      "faq_schema": 1.5,
+      "direct_answer": 1.5,
+      "citation_likelihood": 1.3
+    }
+  },
+  "probe": {
+    "enabled": false,
+    "models": ["gpt4o", "claude"],
+    "cache_ttl_days": 7
+  },
+  "ci": {
+    "threshold": 70,
+    "fail_on_drop": true
+  }
+}
+```
+
+Use it like this:
 
 ```bash
-git clone https://github.com/rakeshcheekatimala/llm-citeops.git citeops
-cd citeops
+llm-citeops audit --url "https://example.com" --config ./.citeops.json
+```
+
+## Local development and verification
+
+```bash
+git clone https://github.com/rakeshcheekatimala/llm-citeops.git
+cd llm-citeops
 npm install
-npm run lint          # TypeScript check (tsc --noEmit)
-npm run build         # Produces dist/ for the published binary
+npm run lint
+npm run build
+npm test
+npm run test:coverage
 ```
 
-### 1. Smoke test (local Markdown)
+Useful smoke tests:
 
 ```bash
-node dist/index.js audit --file ./README.md --output html --output-path ./test-report.html
-open ./test-report.html   # macOS; or open in a browser manually
+node dist/index.js audit --file ./examples/sample.html --output html --output-path ./sample-report.html
+node dist/index.js audit --file ./examples/sample.md --output json --output-path ./sample-report.json
+node dist/index.js audit --dir ./examples --output csv --output-path ./examples-report.csv
 ```
 
-You should see a non-empty report with composite / AEO / GEO scores and audit sections.
+Coverage artifacts are written to:
 
-### 2. Smoke test (JSON for automation)
+- [coverage/index.html](/Users/rakeshcheekatimala/Desktop/Learnings/llm-citeops/coverage/index.html)
+- [coverage/report.md](/Users/rakeshcheekatimala/Desktop/Learnings/llm-citeops/coverage/report.md)
+- [coverage/summary.json](/Users/rakeshcheekatimala/Desktop/Learnings/llm-citeops/coverage/summary.json)
 
-```bash
-node dist/index.js audit --file ./README.md --output json --output-path ./test-report.json
-node -e "const r=require('./test-report.json'); console.log(r.scores, r.audits.length)"
-```
+## Package health
 
-### 3. Dev mode (no build)
+Current project health from this repo state:
 
-```bash
-npm run dev -- audit --file ./README.md --output json
-```
+| Metric | Current status |
+|------|----------------|
+| Typecheck | `npm run lint` |
+| Build | `npm run build` |
+| Test suite | `npm test` |
+| Coverage | `95.06%` lines, `82.33%` branches, `89.07%` functions |
+| Built CLI bundle | `61.3 kB` for `dist/index.js` |
+| npm package size | `428.8 kB` tarball |
+| npm unpacked size | `545.0 kB` |
 
-### 4. Optional: live URL test
+## Documentation
 
-Some sites block simple HTTP clients (403/402/etc.). Prefer **documentation or blog URLs**, and always **quote** URLs that contain `&`:
+- [CONTRIBUTING.md](/Users/rakeshcheekatimala/Desktop/Learnings/llm-citeops/CONTRIBUTING.md)
+- [docs/requirements.md](/Users/rakeshcheekatimala/Desktop/Learnings/llm-citeops/docs/requirements.md)
+- [docs/suggestions.md](/Users/rakeshcheekatimala/Desktop/Learnings/llm-citeops/docs/suggestions.md)
 
-```bash
-node dist/index.js audit --url "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Functions" --output html --output-path ./mdn-report.html
-```
+## Limitations
 
-### 5. Before `npm publish`
+The current implementation has a few deliberate limits:
 
-1. Bump `version` in `package.json` if needed.
-2. Run `npm run lint` and `npm run build`.
-3. Dry-run the tarball:
+- no browser rendering for JavaScript-heavy pages
+- no live probe execution despite the reserved `--probe` flag
+- no implemented compare workflow despite the reserved `--compare` flag
+- no recursive local directory traversal
+- no batch HTML or JSON aggregation beyond the first report
 
-   ```bash
-   npm pack --dry-run
-   ```
-
-   Confirm **`dist/`** and **`templates/`** appear in the packed files.
-
-4. Either push tag **`v<version>`** for the Release workflow, or publish locally (with an npm account and OTP if 2FA is on):
-
-   ```bash
-   npm publish --access public
-   ```
-
-## Output formats
-
-| Flag | Description |
-|------|-------------|
-| `--output html` | Single-file HTML report (default) |
-| `--output json` | Machine-readable report |
-| `--output csv` | Summary row per URL (useful for `--dir` / `--sitemap`) |
-
-## Command reference
-
-```text
-llm-citeops overview   (alias: info) — terminal capability dashboard
-
-llm-citeops audit [options]
-
-  --url <url>           Single URL
-  --file <path>         Local .md or .html
-  --dir <path>          Directory of .md / .html
-  --sitemap <url>       Crawl URLs from sitemap.xml
-
-  --output <format>     html | json | csv (default: html)
-  --output-path <path>  Write report to this path
-
-  --threshold <n>       CI threshold (default: 70)
-  --ci                  Exit 1 if composite < threshold
-
-  --ignore-robots       Ignore robots.txt
-  --depth <n>           Crawl depth (default: 1)
-  --rate <n>            Requests per second (default: 1)
-  --config <path>       Path to .citeops.json
-
-  --probe               Reserved for future LLM probe mode
-  --compare <url>       Reserved for future compare mode
-```
+These are good candidates for future improvement, but the README above reflects the package as it behaves now.
 
 ## License
 
 MIT
-
-## Disclaimer
-
-**llm-citeops** fetches public URLs read-only. Respect each site’s **robots.txt**, **terms of use**, and **rate limits**. You are responsible for compliant use. This tool does not imply endorsement by any third-party site used in examples or tests.
