@@ -2,72 +2,86 @@
 
 [![npm version](https://img.shields.io/npm/v/llm-citeops.svg)](https://www.npmjs.com/package/llm-citeops)
 
-`llm-citeops` is a Node.js CLI package for auditing web content for AEO and GEO readiness.
+`llm-citeops` is a CLI for auditing whether web content is ready for answer engines and generative search.
 
-It is a read-only content audit tool, not a crawler framework or SEO platform. The package takes a page or a batch of pages, runs a fixed rubric of deterministic checks, computes weighted scores, and generates reports with concrete recommendations.
+It helps teams answer a simple question:
+
+**If this page is crawled, summarized, or cited by AI systems, is it actually ready?**
+
+The package reads a page, runs a deterministic AEO and GEO rubric, computes weighted scores, and produces reports with evidence and suggested fixes.
 
 ![HTML audit report — composite, AEO/GEO gauges, and per-check results](assets/report-hero.png)
 
-## What ships today
+## Why people use it
 
-The current package surface is intentionally small:
+Good SEO does not automatically mean good AI visibility.
+
+A page can rank, but still be weak when a model looks for:
+
+- direct answers
+- clear structure
+- trust and authorship signals
+- fresh metadata
+- supporting citations
+- comparison-friendly content
+
+`llm-citeops` gives you one report that is useful to both sides of the team:
+
+- business users get a simple score and a readable summary
+- operators get evidence, failed checks, and concrete fixes
+
+## What you get
+
+The CLI currently provides:
 
 - `llm-citeops overview`
 - `llm-citeops info`
 - `llm-citeops audit`
 
-The main workflow is:
+Inputs:
 
-`collect content -> run 12 audits -> compute AEO/GEO/composite scores -> attach recommendations -> write report`
+- URL
+- local Markdown or HTML file
+- local folder of content files
+- sitemap or sitemap index
 
-Latest verified local quality snapshot on `2026-04-10`:
+Outputs:
 
-- Coverage: `95.06%` lines, `82.33%` branches, `89.07%` functions
-- Test suite: `32/32` passing
-- Coverage gate: `>= 90%` line coverage
+- HTML for human review
+- JSON for automation
+- CSV for batches
 
-## What the package actually audits
+## What it checks
 
-`llm-citeops` currently runs 12 checks split across two categories.
+The current audit rubric contains 12 checks.
 
-### AEO checks
+### AEO
 
-- FAQ / HowTo schema present
+- FAQ or HowTo schema
 - direct answer in the first paragraph
 - Q&A density
-- readability grade `<= 10`
-- named entity richness
-- author byline presence
+- readability
+- named entities
+- author byline
 
-### GEO checks
+### GEO
 
 - topical depth
-- trust signals and EEAT-style metadata
+- trust signals
 - content freshness
-- external links to authoritative sources
+- external citations
 - comparison content
-- citation likelihood signals
+- citation likelihood
 
-These checks are implemented as deterministic heuristics over parsed HTML and extracted text. They do not call an LLM to decide whether content passes.
+These checks are deterministic heuristics over parsed HTML and extracted text. The package does not use an LLM to decide whether a page passes.
 
-## Inputs the package supports
+## Try it quickly
 
-`llm-citeops audit` can read content from:
+Fastest way to understand the product:
 
-- `--url <url>` for a single public page
-- `--file <path>` for one local `.md`, `.markdown`, `.html`, or `.htm` file
-- `--dir <path>` for a top-level directory of local content files
-- `--sitemap <url>` for a remote sitemap or sitemap index
-
-Notable implementation details:
-
-- Markdown files are converted to HTML before auditing.
-- Sitemap indexes are followed recursively.
-- Public URLs are fetched in read-only mode with simple rate limiting.
-- `robots.txt` is respected by default and can be overridden with `--ignore-robots`.
-- The current package does not render JavaScript in a browser, so heavily client-rendered pages may be under-audited.
-
-## Quick start
+- website and playground: [llm-citeops.vercel.app](https://llm-citeops.vercel.app/)
+- npm package: [llm-citeops on npm](https://www.npmjs.com/package/llm-citeops)
+- source code: [GitHub repo](https://github.com/rakeshcheekatimala/llm-citeops)
 
 Run without installing globally:
 
@@ -81,19 +95,19 @@ Install globally:
 npm install -g llm-citeops
 ```
 
-Audit a single live page:
+Audit one live page:
 
 ```bash
 llm-citeops audit --url "https://example.com/docs/article" --output html --output-path ./report.html
 ```
 
-Audit a local file:
+Audit one local file:
 
 ```bash
 llm-citeops audit --file ./examples/sample.html --output json --output-path ./report.json
 ```
 
-Audit a local content folder:
+Audit a folder:
 
 ```bash
 llm-citeops audit --dir ./examples --output csv --output-path ./batch.csv
@@ -105,90 +119,39 @@ Audit a sitemap:
 llm-citeops audit --sitemap "https://example.com/sitemap.xml" --output csv --output-path ./site.csv
 ```
 
-## How scoring works
+## How it works
 
-Each audit returns:
+The workflow is intentionally simple:
 
-- a category: `aeo` or `geo`
-- a status: `pass`, `fail`, or `warn`
-- a binary score used for rollups
-- evidence explaining what was found
-- an optional recommendation when the check does not pass
+1. Read content from a URL, file, folder, or sitemap
+2. Normalize and parse the content
+3. Run the AEO and GEO checks
+4. Compute `aeo`, `geo`, and `composite` scores
+5. Attach recommendations for failed or warning checks
+6. Write a report in HTML, JSON, or CSV
 
-The package then computes:
+The score bands are:
 
-- `aeo`
-- `geo`
-- `composite`
-- a band: `poor`, `needs-improvement`, `good`, or `excellent`
+- `poor`
+- `needs-improvement`
+- `good`
+- `excellent`
 
-By default:
+By default, AEO contributes `50%` and GEO contributes `50%` to the composite score.
 
-- AEO contributes `0.5`
-- GEO contributes `0.5`
+## Best practices
 
-Per-audit weights are also configurable. The built-in default weights emphasize checks such as:
+Start with one page before running a folder or sitemap audit. It is much easier to validate the rubric and review the recommendations on a known page.
 
-- `faq_schema`
-- `direct_answer`
-- `qa_density`
-- `topical_depth`
-- `trust_signals`
-- `citation_likelihood`
+Use `html` when a person will read the report. Use `json` or `csv` when another tool will consume it.
 
-This makes the scoring explainable: you can trace the result back to named checks, visible evidence, and explicit weights.
+Use `csv` for real batch runs. It is the only format that currently emits every page in a folder or sitemap audit.
 
-## Recommendations
+Treat the score as a prioritization signal, not a guarantee. This package is designed to help you improve content quality systematically, not to promise ranking or citation outcomes.
 
-When an audit fails or warns, `llm-citeops` attaches a recommendation with:
+If your site is heavily client-rendered, audit the rendered HTML output or local exports when possible. The current implementation does not run a browser.
 
-- priority: `high`, `medium`, or `low`
-- estimated score impact
-- a concrete instruction
-- in some cases, a code snippet
-
-Examples of the built-in recommendation styles include:
-
-- adding FAQPage or HowTo JSON-LD
-- rewriting the first paragraph into a direct answer
-- adding more question-based headings
-- strengthening author and publisher signals
-- adding external citations
-
-## Output formats
-
-The package currently supports:
-
-- `html`
-- `json`
-- `csv`
-
-Use `html` when a person will review the report.
-
-Use `json` when another tool or script will consume it.
-
-Use `csv` for batches, because CSV is the only format that currently emits one row per audited page.
-
-Important current behavior:
-
-- For `--dir` and `--sitemap` runs, `csv` includes all pages.
-- For `--dir` and `--sitemap` runs, `html` and `json` currently write only the first report in the batch.
-
-## Best practices for using the package well
-
-Start with `--file` or `--url` before running batch audits. The recommendations are easier to inspect when you validate the rubric on one known page first.
-
-Use `html` for editorial review and `json` or `csv` for automation. That matches how the package is implemented today.
-
-Use `csv` for any meaningful directory or sitemap run. It is the only batch-safe output right now.
-
-Treat the scores as a prioritization signal, not as a guarantee of search or citation performance. The package is heuristic by design.
-
-Use `--ci` only after you understand your own baseline. The default threshold of `70` is a practical starting point, but it should not be treated as a universal standard.
-
-If you audit live URLs, be deliberate with `--rate` and avoid `--ignore-robots` unless you explicitly control or have permission to crawl the site.
-
-If your site depends on client-side rendering for main content, prefer auditing the underlying HTML output or local source exports because this package does not run a browser.
+Respect `robots.txt`, rate limits, and site terms when auditing third-party URLs.
 
 ## Command reference
 
@@ -214,15 +177,16 @@ llm-citeops audit [options]
   --compare <url>
 ```
 
-Notes on flags that exist but are not active yet:
+Current implementation notes:
 
-- `--probe` is present, but probe mode is currently stubbed and reports `enabled: false`.
-- `--compare` is present as a future-facing option and is not implemented yet.
-- `--depth` is accepted by the CLI, but the current crawler does not use it yet.
+- `--probe` exists, but probe mode is not implemented yet
+- `--compare` exists, but compare mode is not implemented yet
+- `--depth` is accepted, but the current crawler does not use it yet
+- `html` and `json` currently write only the first report for folder and sitemap runs
 
-## CI mode
+## CI and configuration
 
-Use `--ci` to fail a run when the composite score is below the threshold.
+Fail a run when the score drops below a threshold:
 
 ```bash
 llm-citeops audit --url "$DEPLOY_URL" --ci --threshold 70 --output json --output-path ./citeops-report.json
@@ -237,9 +201,7 @@ Exit codes:
 | 2 | Crawl or runtime error |
 | 3 | Invalid input or config |
 
-## Configuration
-
-The package loads configuration from:
+Optional config loading order:
 
 - `--config <path>`
 - `.citeops.json` in the current project
@@ -258,11 +220,6 @@ Example:
       "citation_likelihood": 1.3
     }
   },
-  "probe": {
-    "enabled": false,
-    "models": ["gpt4o", "claude"],
-    "cache_ttl_days": 7
-  },
   "ci": {
     "threshold": 70,
     "fail_on_drop": true
@@ -270,13 +227,7 @@ Example:
 }
 ```
 
-Use it like this:
-
-```bash
-llm-citeops audit --url "https://example.com" --config ./.citeops.json
-```
-
-## Local development and verification
+## Test it locally
 
 ```bash
 git clone https://github.com/rakeshcheekatimala/llm-citeops.git
@@ -302,21 +253,19 @@ Coverage artifacts are written to:
 - [coverage/report.md](/Users/rakeshcheekatimala/Desktop/Learnings/llm-citeops/coverage/report.md)
 - [coverage/summary.json](/Users/rakeshcheekatimala/Desktop/Learnings/llm-citeops/coverage/summary.json)
 
-## Package health
+## Project health
 
-Current project health from this repo state:
+Latest verified local snapshot on `2026-04-10`:
 
-| Metric | Current status |
-|------|----------------|
+| Metric | Status |
+|---|---|
 | Typecheck | `npm run lint` |
 | Build | `npm run build` |
-| Test suite | `npm test` |
+| Tests | `32/32` passing |
 | Coverage | `95.06%` lines, `82.33%` branches, `89.07%` functions |
-| Built CLI bundle | `61.3 kB` for `dist/index.js` |
-| npm package size | `428.8 kB` tarball |
-| npm unpacked size | `545.0 kB` |
+| Bundle size | `61,331 bytes` for `dist/index.js` |
 
-## Documentation
+## Docs
 
 - [CONTRIBUTING.md](/Users/rakeshcheekatimala/Desktop/Learnings/llm-citeops/CONTRIBUTING.md)
 - [docs/requirements.md](/Users/rakeshcheekatimala/Desktop/Learnings/llm-citeops/docs/requirements.md)
@@ -324,15 +273,13 @@ Current project health from this repo state:
 
 ## Limitations
 
-The current implementation has a few deliberate limits:
+Current known limits:
 
 - no browser rendering for JavaScript-heavy pages
-- no live probe execution despite the reserved `--probe` flag
-- no implemented compare workflow despite the reserved `--compare` flag
+- no implemented probe workflow yet
+- no implemented compare workflow yet
 - no recursive local directory traversal
-- no batch HTML or JSON aggregation beyond the first report
-
-These are good candidates for future improvement, but the README above reflects the package as it behaves now.
+- no aggregated HTML or JSON output for multi-page batch runs
 
 ## License
 
