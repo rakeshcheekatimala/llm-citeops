@@ -52,6 +52,44 @@ export interface Report {
   };
 }
 
+export interface ScoreDelta {
+  target: number;
+  competitor: number;
+  delta: number;
+}
+
+export interface AuditDelta {
+  id: string;
+  category: AuditCategory;
+  title: string;
+  target_status: AuditStatus;
+  competitor_status: AuditStatus;
+  target_score: number;
+  competitor_score: number;
+  delta: number;
+}
+
+export interface ComparisonSummary {
+  scores: {
+    composite: ScoreDelta;
+    aeo: ScoreDelta;
+    geo: ScoreDelta;
+  };
+  audit_deltas: AuditDelta[];
+  target_advantages: AuditDelta[];
+  competitor_advantages: AuditDelta[];
+}
+
+export interface ComparisonReport {
+  type: 'comparison';
+  timestamp: string;
+  target: Report;
+  competitor: Report;
+  comparison: ComparisonSummary;
+}
+
+export type ReportOutput = Report | ComparisonReport;
+
 export interface ProbeResult {
   model: string;
   visibility_score: number;

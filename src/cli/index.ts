@@ -59,8 +59,8 @@ program
   .option('--rate <n>', 'Requests per second (default: 1)', (v) => parseFloat(v), 1)
   // Config
   .option('--config <path>', 'Path to custom .citeops.json config file')
-  // Comparison (Phase 3, stubbed)
-  .option('--compare <url>', 'Compare against a competitor URL (Phase 3)')
+  // Comparison
+  .option('--compare <url>', 'Compare a target URL against a competitor URL')
   .action(async (opts: Record<string, unknown>) => {
     const options: AuditOptions = {
       url: opts.url as string | undefined,
@@ -83,6 +83,13 @@ program
     if (!options.url && !options.file && !options.dir && !options.sitemap) {
       console.error(
         'Error: Provide at least one input with --url, --file, --dir, or --sitemap'
+      );
+      process.exit(3);
+    }
+
+    if (options.compare && (!options.url || options.file || options.dir || options.sitemap)) {
+      console.error(
+        'Error: --compare requires exactly one target URL via --url and one competitor URL via --compare.'
       );
       process.exit(3);
     }

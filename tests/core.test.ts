@@ -8,9 +8,10 @@ import { getRootDomain, isExternalUrl } from '../.test-dist/utils/url.js';
 import { computeScores, bandColor, bandLabel } from '../.test-dist/scoring/index.js';
 import { generateRecommendations } from '../.test-dist/recommendations/index.js';
 import { generateJsonReport } from '../.test-dist/reporters/json.js';
-import { generateCsvReport } from '../.test-dist/reporters/csv.js';
+import { generateCsvComparisonReport, generateCsvReport } from '../.test-dist/reporters/csv.js';
 import { generateHtmlReport } from '../.test-dist/reporters/html.js';
 import { resolveOutputPath } from '../.test-dist/cli/commands/audit.js';
+import type { ComparisonReport } from '../src/types/index.ts';
 import {
   createTempDir,
   makeAuditResult,
@@ -140,6 +141,107 @@ test('JSON, CSV, and HTML reporters return content and write files', () => {
   assert.equal(fs.existsSync(jsonPath), true);
   assert.equal(fs.existsSync(csvPath), true);
   assert.equal(fs.existsSync(htmlPath), true);
+});
+
+test('comparison reporters include target, competitor, and score deltas', () => {
+  const target = makeReport({
+    url: 'https://example.com/target',
+    scores: {
+      composite: 80,
+      aeo: 90,
+      geo: 70,
+      band: 'good',
+      percentile: null,
+    },
+    audits: [
+      makeAuditResult({ id: 'faq_schema', title: 'FAQ schema', status: 'pass', score: 1 }),
+      makeAuditResult({ id: 'external_links', title: 'External links', status: 'fail', score: 0 }),
+    ],
+  });
+  const competitor = makeReport({
+    url: 'https://example.com/competitor',
+    scores: {
+      composite: 60,
+      aeo: 50,
+      geo: 70,
+      band: 'needs-improvement',
+      percentile: null,
+    },
+    audits: [
+      makeAuditResult({ id: 'faq_schema', title: 'FAQ schema', status: 'fail', score: 0 }),
+      makeAuditResult({ id: 'external_links', title: 'External links', status: 'pass', score: 1 }),
+    ],
+  });
+  const comparison: ComparisonReport = {
+    type: 'comparison',
+    timestamp: '2026-01-01T00:00:00.000Z',
+    target,
+    competitor,
+    comparison: {
+      scores: {
+        composite: { target: 80, competitor: 60, delta: 20 },
+        aeo: { target: 90, competitor: 50, delta: 40 },
+        geo: { target: 70, competitor: 70, delta: 0 },
+      },
+      audit_deltas: [
+        {
+          id: 'faq_schema',
+          category: 'aeo',
+          title: 'FAQ schema',
+          target_status: 'pass',
+          competitor_status: 'fail',
+          target_score: 1,
+          competitor_score: 0,
+          delta: 1,
+        },
+        {
+          id: 'external_links',
+          category: 'geo',
+          title: 'External links',
+          target_status: 'fail',
+          competitor_status: 'pass',
+          target_score: 0,
+          competitor_score: 1,
+          delta: -1,
+        },
+      ],
+      target_advantages: [
+        {
+          id: 'faq_schema',
+          category: 'aeo',
+          title: 'FAQ schema',
+          target_status: 'pass',
+          competitor_status: 'fail',
+          target_score: 1,
+          competitor_score: 0,
+          delta: 1,
+        },
+      ],
+      competitor_advantages: [
+        {
+          id: 'external_links',
+          category: 'geo',
+          title: 'External links',
+          target_status: 'fail',
+          competitor_status: 'pass',
+          target_score: 0,
+          competitor_score: 1,
+          delta: -1,
+        },
+      ],
+    },
+  };
+
+  const json = generateJsonReport(comparison);
+  const csv = generateCsvComparisonReport(comparison);
+  const html = generateHtmlReport(comparison);
+
+  assert.equal(JSON.parse(json).target.url, target.url);
+  assert.match(csv, /role,url,timestamp,composite/);
+  assert.match(csv, /target,https:\/\/example.com\/target/);
+  assert.match(csv, /competitor,https:\/\/example.com\/competitor/);
+  assert.match(html, /Competitor Comparison/);
+  assert.match(html, /Target advantages/);
 });
 
 test('CSV reporter escapes fields with commas, quotes, and new lines', () => {
