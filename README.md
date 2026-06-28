@@ -102,6 +102,12 @@ Audit one live page:
 llm-citeops audit --url "https://example.com/docs/article" --output html --output-path ./report.html
 ```
 
+Compare one live page against a competitor:
+
+```bash
+llm-citeops audit --url "https://example.com/docs/article" --compare "https://competitor.example/docs/article" --output json --output-path ./compare-report.json
+```
+
 Audit one local file:
 
 ```bash
@@ -181,7 +187,7 @@ llm-citeops audit [options]
 Current implementation notes:
 
 - `--probe` exists, but probe mode is not implemented yet
-- `--compare` exists, but compare mode is not implemented yet
+- `--compare` audits the target and competitor URLs side by side; it is only supported with `--url`
 - `--depth` is accepted, but the current crawler does not use it yet
 - `html` and `json` currently write only the first report for folder and sitemap runs
 
@@ -192,6 +198,8 @@ Fail a run when the score drops below a threshold:
 ```bash
 llm-citeops audit --url "$DEPLOY_URL" --ci --threshold 70 --output json --output-path ./citeops-report.json
 ```
+
+Compare mode does not change CI threshold behavior. When `--ci` and `--compare` are used together, the threshold is checked against the target URL composite score only; the competitor scores and deltas are reported for context.
 
 Exit codes:
 
@@ -246,6 +254,7 @@ Useful smoke tests:
 node dist/index.js audit --file ./examples/sample.html --output html --output-path ./sample-report.html
 node dist/index.js audit --file ./examples/sample.md --output json --output-path ./sample-report.json
 node dist/index.js audit --dir ./examples --output csv --output-path ./examples-report.csv
+node dist/index.js audit --url "https://example.com" --compare "https://www.iana.org/help/example-domains" --output json --output-path ./compare-report.json
 ```
 
 Coverage artifacts are written to:
@@ -298,7 +307,6 @@ Current known limits:
 
 - no browser rendering for JavaScript-heavy pages
 - no implemented probe workflow yet
-- no implemented compare workflow yet
 - no recursive local directory traversal
 - no aggregated HTML or JSON output for multi-page batch runs
 

@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import Handlebars from 'handlebars';
-import { Report } from '../types/index.js';
+import { ComparisonReport, Report, ReportOutput } from '../types/index.js';
 import { bandColor, bandLabel } from '../scoring/index.js';
 
 Handlebars.registerHelper('bandColor', (band: string) => bandColor(band as never));
@@ -47,6 +47,10 @@ Handlebars.registerHelper('failCount', (audits: Report['audits']) =>
 Handlebars.registerHelper('passCount', (audits: Report['audits']) =>
   audits.filter((a) => a.status === 'pass').length
 );
+Handlebars.registerHelper('signedNumber', (n: number) => (n > 0 ? `+${n}` : String(n)));
+Handlebars.registerHelper('deltaClass', (n: number) =>
+  n > 0 ? 'delta-positive' : n < 0 ? 'delta-negative' : 'delta-neutral'
+);
 
 let compiledTemplate: HandlebarsTemplateDelegate | null = null;
 
@@ -74,14 +78,24 @@ function getTemplate(): HandlebarsTemplateDelegate {
   );
 }
 
-export function generateHtmlReport(report: Report, outputPath?: string): string {
+export function generateHtmlReport(report: ReportOutput, outputPath?: string): string {
   const template = getTemplate();
+  let comparisonReport: ComparisonReport | null = null;
+  let targetReport: Report;
+
+  if (isComparisonReport(report)) {
+    comparisonReport = report;
+    targetReport = report.target;
+  } else {
+    targetReport = report;
+  }
 
   const html = template({
-    report,
+    report: targetReport,
+    comparisonReport,
     generatedAt: new Date(report.timestamp).toLocaleString(),
-    scoreColor: bandColor(report.scores.band),
-    bandLabel: bandLabel(report.scores.band),
+    scoreColor: bandColor(targetReport.scores.band),
+    bandLabel: bandLabel(targetReport.scores.band),
   });
 
   if (outputPath) {
@@ -89,4 +103,8 @@ export function generateHtmlReport(report: Report, outputPath?: string): string 
   }
 
   return html;
+}
+
+function isComparisonReport(report: ReportOutput): report is ComparisonReport {
+  return 'type' in report && report.type === 'comparison';
 }

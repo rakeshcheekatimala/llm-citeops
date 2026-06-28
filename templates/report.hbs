@@ -159,6 +159,69 @@
       text-align: right;
     }
 
+    /* COMPARISON */
+    .comparison-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      padding: 24px;
+      border-bottom: 1px solid var(--border);
+    }
+    .comparison-metric {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      background: #fff;
+    }
+    .comparison-label {
+      font-size: .72rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .comparison-values {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      font-size: .9rem;
+      color: var(--text-secondary);
+    }
+    .comparison-values strong {
+      font-size: 1.8rem;
+      color: var(--text);
+      line-height: 1;
+    }
+    .delta-positive { color: var(--pass); font-weight: 700; }
+    .delta-negative { color: var(--fail); font-weight: 700; }
+    .delta-neutral { color: var(--text-secondary); font-weight: 700; }
+    .comparison-columns {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      padding: 24px;
+    }
+    .comparison-column-title {
+      font-size: .85rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+    .comparison-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      font-size: .86rem;
+      color: var(--text-secondary);
+    }
+    .comparison-list li {
+      padding: 8px 10px;
+      background: #f8f9fa;
+      border-radius: 4px;
+      border-left: 3px solid var(--border);
+    }
+
     /* ── SECTION CARDS ── */
     .section {
       background: var(--surface);
@@ -349,6 +412,8 @@
       .score-summary { grid-template-columns: 1fr; }
       .sub-scores { grid-column: 1; }
       .progress-bar-wrap { width: 140px; }
+      .comparison-grid,
+      .comparison-columns { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -437,6 +502,74 @@
       </div>
     </div>
   </div>
+
+  {{#if comparisonReport}}
+  <div class="section comparison-section">
+    <div class="section-header">
+      <span class="section-title">Competitor Comparison</span>
+      <span class="section-count">target vs competitor</span>
+    </div>
+    <div class="comparison-grid">
+      <div class="comparison-metric">
+        <div class="comparison-label">Composite</div>
+        <div class="comparison-values">
+          <strong>{{comparisonReport.comparison.scores.composite.target}}</strong>
+          <span>vs {{comparisonReport.comparison.scores.composite.competitor}}</span>
+          <span class="{{deltaClass comparisonReport.comparison.scores.composite.delta}}">
+            {{signedNumber comparisonReport.comparison.scores.composite.delta}}
+          </span>
+        </div>
+      </div>
+      <div class="comparison-metric">
+        <div class="comparison-label">AEO</div>
+        <div class="comparison-values">
+          <strong>{{comparisonReport.comparison.scores.aeo.target}}</strong>
+          <span>vs {{comparisonReport.comparison.scores.aeo.competitor}}</span>
+          <span class="{{deltaClass comparisonReport.comparison.scores.aeo.delta}}">
+            {{signedNumber comparisonReport.comparison.scores.aeo.delta}}
+          </span>
+        </div>
+      </div>
+      <div class="comparison-metric">
+        <div class="comparison-label">GEO</div>
+        <div class="comparison-values">
+          <strong>{{comparisonReport.comparison.scores.geo.target}}</strong>
+          <span>vs {{comparisonReport.comparison.scores.geo.competitor}}</span>
+          <span class="{{deltaClass comparisonReport.comparison.scores.geo.delta}}">
+            {{signedNumber comparisonReport.comparison.scores.geo.delta}}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="comparison-columns">
+      <div>
+        <div class="comparison-column-title">Target advantages</div>
+        {{#if comparisonReport.comparison.target_advantages.length}}
+        <ul class="comparison-list">
+          {{#each comparisonReport.comparison.target_advantages}}
+          <li>{{title}}</li>
+          {{/each}}
+        </ul>
+        {{else}}
+        <ul class="comparison-list"><li>No target-only passing checks.</li></ul>
+        {{/if}}
+      </div>
+      <div>
+        <div class="comparison-column-title">Competitor advantages</div>
+        {{#if comparisonReport.comparison.competitor_advantages.length}}
+        <ul class="comparison-list">
+          {{#each comparisonReport.comparison.competitor_advantages}}
+          <li>{{title}}</li>
+          {{/each}}
+        </ul>
+        {{else}}
+        <ul class="comparison-list"><li>No competitor-only passing checks.</li></ul>
+        {{/if}}
+      </div>
+    </div>
+  </div>
+  {{/if}}
 
   <!-- FAILING AUDITS / RECOMMENDATIONS -->
   {{#with (sortByImpact report.audits) as |failures|}}
