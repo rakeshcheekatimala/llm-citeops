@@ -25,6 +25,7 @@
   "scripts": {
     "build": "tsup src/cli/index.ts --format cjs --dts --clean --outDir dist",
     "build:test": "node -e \"require('fs').rmSync('.test-dist',{recursive:true,force:true})\" && tsc --outDir .test-dist --declaration false --declarationMap false --sourceMap false",
+    "benchmark": "node --import tsx scripts/benchmark.ts",
     "dev": "tsx src/cli/index.ts",
     "lint": "tsc --noEmit",
     "release": "semantic-release",

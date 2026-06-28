@@ -3,6 +3,7 @@
 [![npm version](https://img.shields.io/npm/v/llm-citeops.svg)](https://www.npmjs.com/package/llm-citeops)
 
 `llm-citeops` is a CLI for auditing whether web content is ready for answer engines and generative search.
+Temporary README test update.
 
 It helps teams answer a simple question:
 
