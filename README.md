@@ -1,82 +1,70 @@
 # llm-citeops
 
 [![npm version](https://img.shields.io/npm/v/llm-citeops.svg)](https://www.npmjs.com/package/llm-citeops)
+[![license](https://img.shields.io/badge/license-MIT-blue.svg)](#license)
 
-`llm-citeops` is a CLI for auditing whether web content is ready for answer engines and generative search.
-Temporary README test update.
+`llm-citeops` is an open-source CLI for auditing whether web content is ready for answer engines, AI search, and citation-driven discovery.
 
-It helps teams answer a simple question:
+It helps teams answer three practical questions:
 
-**If this page is crawled, summarized, or cited by AI systems, is it actually ready?**
+- Is this page structured clearly enough for AI systems to summarize, trust, and cite?
+- How does this page compare with a competitor or reference page?
+- Did this pull request improve or weaken AI visibility before it ships?
 
-The package reads a page, runs a deterministic AEO and GEO rubric, computes weighted scores, and produces reports with evidence and suggested fixes.
+The package reads pages, local files, folders, sitemaps, or existing audit reports, runs a deterministic AEO/GEO rubric, and produces reports with scores, evidence, and recommended fixes.
 
-![HTML audit report — composite, AEO/GEO gauges, and per-check results](assets/report-hero.png)
+![HTML audit report - composite, AEO/GEO gauges, and per-check results](assets/report-hero.png)
 
-## Why people use it
+## Why It Exists
 
-Good SEO does not automatically mean good AI visibility.
+Traditional SEO checks do not always reveal whether a page is useful to AI answer engines.
 
-A page can rank, but still be weak when a model looks for:
+A page can rank in search and still be weak for:
 
-- direct answers
-- clear structure
-- trust and authorship signals
-- fresh metadata
-- supporting citations
+- direct answer extraction
+- entity and topic clarity
+- source and authorship trust
+- freshness signals
+- external proof links
 - comparison-friendly content
+- citation readiness
 
-`llm-citeops` gives you one report that is useful to both sides of the team:
+`llm-citeops` is designed to be a lightweight quality gate for that layer of work. Think of it like Lighthouse or ESLint, but for AI visibility signals in content.
 
-- business users get a simple score and a readable summary
-- operators get evidence, failed checks, and concrete fixes
+## What Makes It Different
 
-## What you get
+- **Deterministic by default**: no hidden LLM judge is required to score a page.
+- **Evidence-backed**: every audit produces a pass, warning, or failure with supporting evidence.
+- **CI-friendly**: use score thresholds and diff gates to fail a build when visibility regresses.
+- **Readable for humans**: HTML reports make it easy for content, SEO, and engineering teams to review the same findings.
+- **Reusable for tooling**: JSON and CSV outputs are stable enough for dashboards, PR comments, and downstream automation.
+- **Useful before shipping**: AI Visibility Diff compares baseline and pull request reports before changes go live.
 
-The CLI currently provides:
+## Features
+
+Current CLI commands:
 
 - `llm-citeops overview`
 - `llm-citeops info`
 - `llm-citeops audit`
+- `llm-citeops diff`
 
-Inputs:
+Supported audit inputs:
 
-- URL
+- live URL
 - local Markdown or HTML file
 - local folder of content files
 - sitemap or sitemap index
 
-Outputs:
+Supported outputs:
 
 - HTML for human review
 - JSON for automation
-- CSV for batches
+- CSV for batch audit summaries
+- HTML or JSON diff reports for pull request workflows
+- competitor comparison reports when `audit --compare` is used with `--url`
 
-## What it checks
-
-The current audit rubric contains 12 checks.
-
-### AEO
-
-- FAQ or HowTo schema
-- direct answer in the first paragraph
-- Q&A density
-- readability
-- named entities
-- author byline
-
-### GEO
-
-- topical depth
-- trust signals
-- content freshness
-- external citations
-- comparison content
-- citation likelihood
-
-These checks are deterministic heuristics over parsed HTML and extracted text. The package does not use an LLM to decide whether a page passes.
-
-## Try it quickly
+## Quick Start
 
 Fastest way to understand the product:
 
@@ -99,68 +87,276 @@ npm install -g llm-citeops
 Audit one live page:
 
 ```bash
-llm-citeops audit --url "https://example.com/docs/article" --output html --output-path ./report.html
-```
-
-Compare one live page against a competitor:
-
-```bash
-llm-citeops audit --url "https://example.com/docs/article" --compare "https://competitor.example/docs/article" --output json --output-path ./compare-report.json
+llm-citeops audit \
+  --url "https://example.com/docs/article" \
+  --output html \
+  --output-path ./citeops-report.html
 ```
 
 Audit one local file:
 
 ```bash
-llm-citeops audit --file ./examples/sample.html --output json --output-path ./report.json
+llm-citeops audit \
+  --file ./examples/sample.html \
+  --output json \
+  --output-path ./citeops-report.json
 ```
 
 Audit a folder:
 
 ```bash
-llm-citeops audit --dir ./examples --output csv --output-path ./batch.csv
+llm-citeops audit \
+  --dir ./examples \
+  --output csv \
+  --output-path ./citeops-batch.csv
 ```
 
 Audit a sitemap:
 
 ```bash
-llm-citeops audit --sitemap "https://example.com/sitemap.xml" --output csv --output-path ./site.csv
+llm-citeops audit \
+  --sitemap "https://example.com/sitemap.xml" \
+  --output csv \
+  --output-path ./citeops-sitemap.csv
 ```
 
-## How it works
+## Competitor Compare
+
+Competitor compare audits a target URL and a competitor or reference URL side by side.
+
+Use it when you want to understand where another page has stronger answerability, citation, schema, or trust signals.
+
+```bash
+llm-citeops audit \
+  --url "https://example.com/docs/article" \
+  --compare "https://competitor.example/docs/article" \
+  --output html \
+  --output-path ./citeops-compare-report.html
+```
+
+Generate a JSON comparison report:
+
+```bash
+llm-citeops audit \
+  --url "https://example.com/docs/article" \
+  --compare "https://competitor.example/docs/article" \
+  --output json \
+  --output-path ./citeops-compare-report.json
+```
+
+Compare mode is currently supported for `--url` audits. Folder, file, and sitemap comparison workflows are planned follow-ups.
+
+## AI Visibility Diff
+
+AI Visibility Diff compares a baseline audit report with a current pull request report. It shows whether a change improved or regressed AI visibility.
+
+This is useful in CI because it catches content and markup regressions before deployment.
+
+Compare two existing JSON audit reports:
+
+```bash
+llm-citeops diff \
+  --base-report ./baseline-report.json \
+  --head-report ./current-report.json \
+  --output html \
+  --output-path ./citeops-diff-report.html
+```
+
+Generate a machine-readable diff:
+
+```bash
+llm-citeops diff \
+  --base-report ./baseline-report.json \
+  --head-report ./current-report.json \
+  --output json \
+  --output-path ./citeops-diff-report.json
+```
+
+Fail CI when visibility regresses:
+
+```bash
+llm-citeops diff \
+  --base-report ./baseline-report.json \
+  --head-report ./current-report.json \
+  --fail-on-regression \
+  --max-composite-drop 0 \
+  --max-aeo-drop 0 \
+  --max-geo-drop 0 \
+  --max-citation-readiness-drop 0
+```
+
+Require minimum improvements:
+
+```bash
+llm-citeops diff \
+  --base-report ./baseline-report.json \
+  --head-report ./current-report.json \
+  --min-composite-delta 0 \
+  --min-aeo-delta 0 \
+  --min-geo-delta 0
+```
+
+Example diff summary:
+
+```json
+{
+  "summary": {
+    "status": "improved",
+    "baseScore": 74,
+    "headScore": 82,
+    "delta": 8
+  },
+  "scoreDiffs": {
+    "composite": {
+      "base": 74,
+      "head": 82,
+      "delta": 8,
+      "status": "improved"
+    },
+    "aeo": {
+      "base": 78,
+      "head": 85,
+      "delta": 7,
+      "status": "improved"
+    }
+  },
+  "ci": {
+    "passed": true,
+    "reasons": []
+  }
+}
+```
+
+## What It Checks
+
+The current audit rubric contains 12 deterministic checks.
+
+### AEO
+
+- FAQ or HowTo schema
+- direct answer in the first paragraph
+- Q&A density
+- readability
+- named entities
+- author byline
+
+### GEO
+
+- topical depth
+- trust signals
+- content freshness
+- external citations
+- comparison content
+- citation likelihood
+
+Diff reports also derive higher-level comparison signals such as citation readiness, schema quality, content clarity, entity coverage, evidence quality, author/date/source signals, answerability, and AI extractability.
+
+## How Scoring Works
 
 The workflow is intentionally simple:
 
-1. Read content from a URL, file, folder, or sitemap
-2. Normalize and parse the content
-3. Run the AEO and GEO checks
-4. Compute `aeo`, `geo`, and `composite` scores
-5. Attach recommendations for failed or warning checks
-6. Write a report in HTML, JSON, or CSV
+1. Read content from a URL, file, folder, sitemap, or JSON report.
+2. Normalize and parse content.
+3. Run deterministic AEO and GEO checks.
+4. Compute `aeo`, `geo`, and `composite` scores.
+5. Attach recommendations for failed or warning checks.
+6. Write a report in HTML, JSON, CSV, comparison, or diff format.
 
-The score bands are:
+Score bands:
 
-- `poor`
-- `needs-improvement`
-- `good`
-- `excellent`
+| Band | Meaning |
+|---|---|
+| `poor` | Major AI visibility gaps |
+| `needs-improvement` | Useful foundation, but important signals are missing |
+| `good` | Strong baseline for answer and citation readiness |
+| `excellent` | Well-structured, evidence-rich, and easy to extract |
 
 By default, AEO contributes `50%` and GEO contributes `50%` to the composite score.
 
-## Best practices
+## CI Examples
 
-Start with one page before running a folder or sitemap audit. It is much easier to validate the rubric and review the recommendations on a known page.
+Fail a deployment preview if the page score is below a threshold:
 
-Use `html` when a person will read the report. Use `json` or `csv` when another tool will consume it.
+```bash
+llm-citeops audit \
+  --url "$DEPLOY_URL" \
+  --ci \
+  --threshold 70 \
+  --output json \
+  --output-path ./citeops-report.json
+```
 
-Use `csv` for real batch runs. It is the only format that currently emits every page in a folder or sitemap audit.
+Compare mode does not change CI threshold behavior. When `--ci` and `--compare` are used together, the threshold is checked against the target URL composite score only; competitor scores and deltas are reported for context.
 
-Treat the score as a prioritization signal, not a guarantee. This package is designed to help you improve content quality systematically, not to promise ranking or citation outcomes.
+Fail a pull request if the current report regresses against the baseline:
 
-If your site is heavily client-rendered, audit the rendered HTML output or local exports when possible. The current implementation does not run a browser.
+```bash
+llm-citeops diff \
+  --base-report ./baseline-report.json \
+  --head-report ./current-report.json \
+  --output json \
+  --output-path ./citeops-diff-report.json \
+  --fail-on-regression \
+  --fail-on-high-severity
+```
 
-Respect `robots.txt`, rate limits, and site terms when auditing third-party URLs.
+GitHub Actions sketch:
 
-## Command reference
+```yaml
+name: AI Visibility
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  citeops:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - run: npm ci
+
+      - name: Audit baseline
+        run: |
+          npx llm-citeops audit \
+            --url "https://example.com/page" \
+            --output json \
+            --output-path ./baseline-report.json
+
+      - name: Audit preview
+        run: |
+          npx llm-citeops audit \
+            --url "$DEPLOY_PREVIEW_URL" \
+            --output json \
+            --output-path ./current-report.json
+
+      - name: Compare AI visibility
+        run: |
+          npx llm-citeops diff \
+            --base-report ./baseline-report.json \
+            --head-report ./current-report.json \
+            --output html \
+            --output-path ./citeops-diff-report.html \
+            --fail-on-regression
+```
+
+Exit codes:
+
+| Exit code | Meaning |
+|---|---|
+| 0 | Success |
+| 1 | CI gate failure |
+| 2 | Crawl or runtime error |
+| 3 | Invalid input, config, or diff report |
+
+## Command Reference
 
 ```text
 llm-citeops overview
@@ -171,7 +367,7 @@ llm-citeops audit [options]
   --file <path>
   --dir <path>
   --sitemap <url>
-  --output <format>     html | json | csv
+  --output <format>                 html | json | csv
   --output-path <path>
   --threshold <n>
   --ci
@@ -182,39 +378,40 @@ llm-citeops audit [options]
   --probe
   --models <list>
   --compare <url>
+
+llm-citeops diff [options]
+  --base-report <path>
+  --head-report <path>
+  --output <format>                 html | json
+  --output-path <path>
+  --fail-on-regression
+  --fail-on-high-severity
+  --max-composite-drop <n>
+  --max-aeo-drop <n>
+  --max-geo-drop <n>
+  --max-citation-readiness-drop <n>
+  --min-composite-delta <n>
+  --min-aeo-delta <n>
+  --min-geo-delta <n>
+  --min-citation-readiness-delta <n>
 ```
 
 Current implementation notes:
 
-- `--probe` exists, but probe mode is not implemented yet
-- `--compare` audits the target and competitor URLs side by side; it is only supported with `--url`
-- `--depth` is accepted, but the current crawler does not use it yet
-- `html` and `json` currently write only the first report for folder and sitemap runs
+- `--compare` audits the target and competitor URLs side by side; it is only supported with `--url`.
+- `diff` currently compares existing JSON audit reports.
+- live URL diff, sitemap diff, and PR comment output are planned follow-ups.
+- `--probe` exists, but probe mode is not implemented yet.
+- `--depth` is accepted, but the current crawler does not use it yet.
+- `html` and `json` audit outputs currently write only the first report for folder and sitemap runs.
 
-## CI and configuration
-
-Fail a run when the score drops below a threshold:
-
-```bash
-llm-citeops audit --url "$DEPLOY_URL" --ci --threshold 70 --output json --output-path ./citeops-report.json
-```
-
-Compare mode does not change CI threshold behavior. When `--ci` and `--compare` are used together, the threshold is checked against the target URL composite score only; the competitor scores and deltas are reported for context.
-
-Exit codes:
-
-| Exit code | Meaning |
-|-----------|---------|
-| 0 | Success |
-| 1 | CI failure |
-| 2 | Crawl or runtime error |
-| 3 | Invalid input or config |
+## Configuration
 
 Optional config loading order:
 
-- `--config <path>`
-- `.citeops.json` in the current project
-- `.citeops.json` in the home directory
+1. `--config <path>`
+2. `.citeops.json` in the current project
+3. `.citeops.json` in the home directory
 
 Example:
 
@@ -236,7 +433,25 @@ Example:
 }
 ```
 
-## Test it locally
+## Best Practices
+
+Start with one known page before running a folder or sitemap audit. It is easier to validate the rubric and review recommendations on content you understand well.
+
+Use `html` when a person will read the report. Use `json` or `csv` when another tool will consume it.
+
+Use `csv` for real batch audit runs. It is the only audit format that currently emits every page in a folder or sitemap audit.
+
+Use `audit --compare` when you want a live side-by-side benchmark against a competitor, reference page, or category leader.
+
+Use `diff` in pull requests. A single score is useful, but a before/after comparison is more useful for release decisions.
+
+Treat scores as prioritization signals, not guarantees. This project helps improve content quality systematically; it does not promise rankings, citations, or model behavior.
+
+If your site is heavily client-rendered, audit rendered HTML output or local exports when possible. The current implementation does not run a browser.
+
+Respect `robots.txt`, rate limits, and site terms when auditing third-party URLs.
+
+## Local Development
 
 ```bash
 git clone https://github.com/rakeshcheekatimala/llm-citeops.git
@@ -255,15 +470,70 @@ node dist/index.js audit --file ./examples/sample.html --output html --output-pa
 node dist/index.js audit --file ./examples/sample.md --output json --output-path ./sample-report.json
 node dist/index.js audit --dir ./examples --output csv --output-path ./examples-report.csv
 node dist/index.js audit --url "https://example.com" --compare "https://www.iana.org/help/example-domains" --output json --output-path ./compare-report.json
+node dist/index.js diff --base-report ./sample-report.json --head-report ./sample-report.json --output html --output-path ./sample-diff.html
 ```
 
 Coverage artifacts are written to:
 
-- [coverage/index.html](/Users/rakeshcheekatimala/Desktop/Learnings/llm-citeops/coverage/index.html)
-- [coverage/report.md](/Users/rakeshcheekatimala/Desktop/Learnings/llm-citeops/coverage/report.md)
-- [coverage/summary.json](/Users/rakeshcheekatimala/Desktop/Learnings/llm-citeops/coverage/summary.json)
+- [coverage/index.html](coverage/index.html)
+- [coverage/report.md](coverage/report.md)
+- [coverage/summary.json](coverage/summary.json)
 
-## Releases
+## Contributing
+
+Contributions are welcome. The project is intentionally small, deterministic, and practical.
+
+Good contribution areas include:
+
+- new AEO/GEO checks with clear evidence
+- better scoring explainability
+- richer compare and diff reports
+- GitHub Action and PR comment workflows
+- sitemap and batch reporting improvements
+- documentation and real-world examples
+
+Please read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request.
+
+## Project Health
+
+Latest verified local snapshot on `2026-07-02`:
+
+| Metric | Status |
+|---|---|
+| Typecheck | `npm run lint` passing |
+| Build | `npm run build` passing |
+| Tests | `39/39` passing with Node 23.11.0 |
+
+Note: the current `npm test` script uses `node --import`, so contributors should run tests with a Node version that supports that flag. Node 20+ is recommended for local development.
+
+## Roadmap
+
+Planned directions:
+
+- live URL diff without pre-generated JSON reports
+- sitemap-to-sitemap diff reports
+- GitHub PR comments
+- Markdown CI summaries
+- historical baselines
+- browser-rendered audits for client-heavy pages
+- optional LLM probe workflows
+- competitor diff mode
+
+## Docs
+
+- [CONTRIBUTING.md](CONTRIBUTING.md)
+- [docs/requirements.md](docs/requirements.md)
+- [docs/suggestions.md](docs/suggestions.md)
+
+## Limitations
+
+- no browser rendering for JavaScript-heavy pages
+- no implemented probe workflow yet
+- no live URL or sitemap diff workflow yet
+- no recursive local directory traversal
+- no aggregated HTML or JSON output for multi-page batch audit runs
+
+## Release Process
 
 Releases are automated with `semantic-release` from `main`.
 
@@ -279,36 +549,9 @@ Preview the next version locally:
 npm run release:dry-run
 ```
 
-`semantic-release` itself requires Node 24 for the release step, so the local dry run uses an ephemeral Node 24 runtime even if day-to-day development stays on Node 18 or 20.
+`semantic-release` itself requires Node 24 for the release step, so the local dry run uses an ephemeral Node 24 runtime even if day-to-day development uses Node 20+.
 
 The release workflow runs typecheck, build, and tests, then publishes to npm and creates a GitHub release when the commit history since the last tag contains a releasable change.
-
-## Project health
-
-Latest verified local snapshot on `2026-04-10`:
-
-| Metric | Status |
-|---|---|
-| Typecheck | `npm run lint` |
-| Build | `npm run build` |
-| Tests | `32/32` passing |
-| Coverage | `95.06%` lines, `82.33%` branches, `89.07%` functions |
-| Bundle size | `61,331 bytes` for `dist/index.js` |
-
-## Docs
-
-- [CONTRIBUTING.md](/Users/rakeshcheekatimala/Desktop/Learnings/llm-citeops/CONTRIBUTING.md)
-- [docs/requirements.md](/Users/rakeshcheekatimala/Desktop/Learnings/llm-citeops/docs/requirements.md)
-- [docs/suggestions.md](/Users/rakeshcheekatimala/Desktop/Learnings/llm-citeops/docs/suggestions.md)
-
-## Limitations
-
-Current known limits:
-
-- no browser rendering for JavaScript-heavy pages
-- no implemented probe workflow yet
-- no recursive local directory traversal
-- no aggregated HTML or JSON output for multi-page batch runs
 
 ## License
 
