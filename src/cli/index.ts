@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+import '../polyfills/node-web.js';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import { Command } from 'commander';
