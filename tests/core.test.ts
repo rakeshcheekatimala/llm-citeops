@@ -10,7 +10,11 @@ import { generateRecommendations } from '../.test-dist/recommendations/index.js'
 import { generateJsonReport } from '../.test-dist/reporters/json.js';
 import { generateCsvComparisonReport, generateCsvReport } from '../.test-dist/reporters/csv.js';
 import { generateHtmlReport } from '../.test-dist/reporters/html.js';
+import { compareReports } from '../.test-dist/diff/compareReports.js';
+import { generateDiffHtmlReport } from '../.test-dist/reporters/diffHtmlReporter.js';
+import { generateDiffJsonReport } from '../.test-dist/reporters/diffJsonReporter.js';
 import { resolveOutputPath } from '../.test-dist/cli/commands/audit.js';
+import { resolveDiffOutputPath } from '../.test-dist/cli/commands/diff.js';
 import type { ComparisonReport } from '../src/types/index.ts';
 import {
   createTempDir,
@@ -278,6 +282,91 @@ test('comparison reporters include target, competitor, and score deltas', () => 
   assert.match(html, /Target leads/);
 });
 
+test('diff comparison derives score deltas, signal changes, recommendations, and CI result', () => {
+  const base = makeReport({
+    scores: {
+      composite: 74,
+      aeo: 78,
+      geo: 70,
+      band: 'needs-improvement',
+      percentile: null,
+    },
+    audits: [
+      makeAuditResult({ id: 'faq_schema', title: 'FAQ schema present', category: 'aeo', weight: 1.5, status: 'fail', score: 0 }),
+      makeAuditResult({ id: 'direct_answer', title: 'Direct answer', category: 'aeo', weight: 1.5, status: 'pass', score: 1 }),
+      makeAuditResult({ id: 'external_links', title: 'External proof links', category: 'geo', weight: 1, status: 'pass', score: 1 }),
+      makeAuditResult({ id: 'citation_likelihood', title: 'Citation likelihood', category: 'geo', weight: 1.3, status: 'pass', score: 1 }),
+    ],
+  });
+  const head = makeReport({
+    scores: {
+      composite: 82,
+      aeo: 85,
+      geo: 79,
+      band: 'good',
+      percentile: null,
+    },
+    audits: [
+      makeAuditResult({ id: 'faq_schema', title: 'FAQ schema present', category: 'aeo', weight: 1.5, status: 'pass', score: 1 }),
+      makeAuditResult({ id: 'direct_answer', title: 'Direct answer', category: 'aeo', weight: 1.5, status: 'pass', score: 1 }),
+      makeAuditResult({
+        id: 'external_links',
+        title: 'External proof links',
+        category: 'geo',
+        weight: 1,
+        status: 'fail',
+        score: 0,
+        recommendation: {
+          priority: 'medium',
+          score_impact: 5,
+          instruction: 'Add authoritative external citations.',
+        },
+      }),
+      makeAuditResult({ id: 'citation_likelihood', title: 'Citation likelihood', category: 'geo', weight: 1.3, status: 'pass', score: 1 }),
+    ],
+  });
+
+  const diff = compareReports(base, head, { failOnRegression: true });
+
+  assert.deepEqual(diff.summary, {
+    status: 'improved',
+    baseScore: 74,
+    headScore: 82,
+    delta: 8,
+  });
+  assert.equal(diff.scoreDiffs.aeo.delta, 7);
+  assert.equal(diff.scoreDiffs.citationReadiness.delta, -43);
+  assert.equal(diff.improvements.length, 1);
+  assert.equal(diff.regressions.length, 1);
+  assert.equal(diff.recommendations[0].instruction, 'Add authoritative external citations.');
+  assert.equal(diff.ci.passed, false);
+  assert.match(diff.ci.reasons.join('\n'), /Citation Readiness dropped/);
+});
+
+test('diff JSON and HTML reporters return content and write files', () => {
+  const tempDir = createTempDir();
+  const diff = compareReports(makeReport(), makeReport({
+    scores: {
+      composite: 83,
+      aeo: 88,
+      geo: 78,
+      band: 'good',
+      percentile: null,
+    },
+  }));
+  const jsonPath = path.join(tempDir, 'diff.json');
+  const htmlPath = path.join(tempDir, 'diff.html');
+
+  const json = generateDiffJsonReport(diff, jsonPath);
+  const html = generateDiffHtmlReport(diff, htmlPath);
+
+  assert.equal(JSON.parse(json).summary.delta, 3);
+  assert.match(html, /AI Visibility Diff Report/);
+  assert.match(html, /Score Comparison/);
+  assert.equal(fs.existsSync(jsonPath), true);
+  assert.equal(fs.existsSync(htmlPath), true);
+});
+
 test('CSV reporter escapes fields with commas, quotes, and new lines', () => {
   const report = makeReport({
     url: 'https://example.com/a,b',
@@ -296,4 +385,7 @@ test('output path resolver respects explicit paths and format defaults', () => {
   const csvDefault = resolveOutputPath(undefined, 'csv');
   assert.ok(htmlDefault.endsWith('citeops-report.html'));
   assert.ok(csvDefault.endsWith('citeops-report.csv'));
+
+  const diffDefault = resolveDiffOutputPath(undefined, 'json');
+  assert.ok(diffDefault.endsWith('citeops-diff-report.json'));
 });
