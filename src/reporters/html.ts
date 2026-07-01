@@ -8,6 +8,10 @@ Handlebars.registerHelper('bandColor', (band: string) => bandColor(band as never
 Handlebars.registerHelper('bandLabel', (band: string) => bandLabel(band as never));
 Handlebars.registerHelper('eq', (a: unknown, b: unknown) => a === b);
 Handlebars.registerHelper('ne', (a: unknown, b: unknown) => a !== b);
+Handlebars.registerHelper('inc', (n: number) => n + 1);
+Handlebars.registerHelper('take', <T>(items: T[] | undefined, count: number) =>
+  Array.isArray(items) ? items.slice(0, count) : []
+);
 Handlebars.registerHelper('upper', (s: string) => s?.toUpperCase());
 Handlebars.registerHelper('capitalize', (s: string) =>
   s ? s.charAt(0).toUpperCase() + s.slice(1) : ''

@@ -160,6 +160,101 @@
     }
 
     /* COMPARISON */
+    .comparison-brief {
+      display: grid;
+      grid-template-columns: minmax(220px, .8fr) 1.2fr;
+      gap: 20px;
+      padding: 24px;
+      border-bottom: 1px solid var(--border);
+      background: #fbfcff;
+    }
+    .comparison-leader {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+      background: #fff;
+    }
+    .comparison-kicker {
+      font-size: .7rem;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+    .comparison-leader-title {
+      font-size: 1.45rem;
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 8px;
+    }
+    .comparison-gap {
+      display: inline-flex;
+      align-items: baseline;
+      gap: 4px;
+      padding: 5px 9px;
+      border-radius: 999px;
+      background: #f1f3f4;
+      font-weight: 800;
+      margin-bottom: 12px;
+    }
+    .comparison-gap strong { font-size: 1.35rem; line-height: 1; }
+    .comparison-summary {
+      font-size: .86rem;
+      color: var(--text-secondary);
+      line-height: 1.45;
+    }
+    .comparison-now {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    .comparison-now-panel {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: #fff;
+      padding: 16px;
+      min-width: 0;
+    }
+    .comparison-panel-title {
+      font-size: .82rem;
+      font-weight: 800;
+      margin-bottom: 10px;
+    }
+    .comparison-action-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+      font-size: .84rem;
+      color: var(--text);
+    }
+    .comparison-action-list li {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 8px;
+      align-items: start;
+    }
+    .comparison-rank {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #fef7e0;
+      color: #b06000;
+      font-size: .72rem;
+      font-weight: 800;
+      line-height: 1;
+    }
+    .comparison-action-meta {
+      display: block;
+      margin-top: 2px;
+      color: var(--text-secondary);
+      font-size: .74rem;
+      line-height: 1.35;
+    }
     .comparison-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -193,6 +288,32 @@
       color: var(--text);
       line-height: 1;
     }
+    .comparison-bar {
+      margin-top: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+    .comparison-bar-row {
+      display: grid;
+      grid-template-columns: 74px 1fr 32px;
+      gap: 8px;
+      align-items: center;
+      font-size: .73rem;
+      color: var(--text-secondary);
+    }
+    .comparison-bar-track {
+      height: 7px;
+      border-radius: 999px;
+      background: #e8eaed;
+      overflow: hidden;
+    }
+    .comparison-bar-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: #1a73e8;
+    }
+    .comparison-bar-fill.competitor { background: #c2185b; }
     .delta-positive { color: var(--pass); font-weight: 700; }
     .delta-negative { color: var(--fail); font-weight: 700; }
     .delta-neutral { color: var(--text-secondary); font-weight: 700; }
@@ -207,20 +328,52 @@
       font-weight: 700;
       margin-bottom: 12px;
     }
+    .comparison-column-subtitle {
+      font-size: .76rem;
+      color: var(--text-secondary);
+      margin: -6px 0 12px;
+      line-height: 1.45;
+    }
     .comparison-list {
       list-style: none;
       display: flex;
       flex-direction: column;
       gap: 8px;
-      font-size: .86rem;
-      color: var(--text-secondary);
+      font-size: .84rem;
+      color: var(--text);
     }
     .comparison-list li {
-      padding: 8px 10px;
+      padding: 10px 12px;
       background: #f8f9fa;
       border-radius: 4px;
       border-left: 3px solid var(--border);
     }
+    .comparison-list-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .comparison-list-body {
+      color: var(--text-secondary);
+      line-height: 1.45;
+    }
+    .comparison-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 1px 7px;
+      border-radius: 999px;
+      background: #e8f0fe;
+      color: #1a73e8;
+      font-size: .68rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+    .comparison-pill.high { background: #fce8e6; color: #c5221f; }
+    .comparison-pill.medium { background: #fef7e0; color: #b06000; }
+    .comparison-pill.low { background: #e8f0fe; color: #1a73e8; }
 
     /* ── SECTION CARDS ── */
     .section {
@@ -412,6 +565,8 @@
       .score-summary { grid-template-columns: 1fr; }
       .sub-scores { grid-column: 1; }
       .progress-bar-wrap { width: 140px; }
+      .comparison-brief,
+      .comparison-now,
       .comparison-grid,
       .comparison-columns { grid-template-columns: 1fr; }
     }
@@ -509,6 +664,53 @@
       <span class="section-title">Competitor Comparison</span>
       <span class="section-count">target vs competitor</span>
     </div>
+
+    <div class="comparison-brief">
+      <div class="comparison-leader">
+        <div class="comparison-kicker">Winner signal</div>
+        <div class="comparison-leader-title">{{comparisonReport.comparison.leader.label}}</div>
+        <div class="comparison-gap">
+          <strong>{{comparisonReport.comparison.leader.score_gap}}</strong>
+          <span>point gap</span>
+        </div>
+        <p class="comparison-summary">{{comparisonReport.comparison.leader.summary}}</p>
+      </div>
+
+      <div class="comparison-now">
+        <div class="comparison-now-panel">
+          <div class="comparison-panel-title">Improve first</div>
+          {{#if comparisonReport.comparison.improve_first.length}}
+          <ul class="comparison-action-list">
+            {{#each (take comparisonReport.comparison.improve_first 3)}}
+            <li>
+              <span class="comparison-rank">{{inc @index}}</span>
+              <span>{{title}}<span class="comparison-action-meta">{{priority}} priority · +{{score_impact}} pts · {{reason}}</span></span>
+            </li>
+            {{/each}}
+          </ul>
+          {{else}}
+          <ul class="comparison-action-list"><li><span class="comparison-rank">1</span><span>No urgent target gaps found.</span></li></ul>
+          {{/if}}
+        </div>
+
+        <div class="comparison-now-panel">
+          <div class="comparison-panel-title">Competitor edge</div>
+          {{#if comparisonReport.comparison.competitor_edges.length}}
+          <ul class="comparison-action-list">
+            {{#each (take comparisonReport.comparison.competitor_edges 3)}}
+            <li>
+              <span class="comparison-rank">{{inc @index}}</span>
+              <span>{{title}}<span class="comparison-action-meta">{{reason}}</span></span>
+            </li>
+            {{/each}}
+          </ul>
+          {{else}}
+          <ul class="comparison-action-list"><li><span class="comparison-rank">1</span><span>No competitor-only passing checks.</span></li></ul>
+          {{/if}}
+        </div>
+      </div>
+    </div>
+
     <div class="comparison-grid">
       <div class="comparison-metric">
         <div class="comparison-label">Composite</div>
@@ -518,6 +720,18 @@
           <span class="{{deltaClass comparisonReport.comparison.scores.composite.delta}}">
             {{signedNumber comparisonReport.comparison.scores.composite.delta}}
           </span>
+        </div>
+        <div class="comparison-bar">
+          <div class="comparison-bar-row">
+            <span>Target</span>
+            <span class="comparison-bar-track"><span class="comparison-bar-fill" style="width: {{comparisonReport.comparison.scores.composite.target}}%"></span></span>
+            <strong>{{comparisonReport.comparison.scores.composite.target}}</strong>
+          </div>
+          <div class="comparison-bar-row">
+            <span>Competitor</span>
+            <span class="comparison-bar-track"><span class="comparison-bar-fill competitor" style="width: {{comparisonReport.comparison.scores.composite.competitor}}%"></span></span>
+            <strong>{{comparisonReport.comparison.scores.composite.competitor}}</strong>
+          </div>
         </div>
       </div>
       <div class="comparison-metric">
@@ -529,6 +743,18 @@
             {{signedNumber comparisonReport.comparison.scores.aeo.delta}}
           </span>
         </div>
+        <div class="comparison-bar">
+          <div class="comparison-bar-row">
+            <span>Target</span>
+            <span class="comparison-bar-track"><span class="comparison-bar-fill" style="width: {{comparisonReport.comparison.scores.aeo.target}}%"></span></span>
+            <strong>{{comparisonReport.comparison.scores.aeo.target}}</strong>
+          </div>
+          <div class="comparison-bar-row">
+            <span>Competitor</span>
+            <span class="comparison-bar-track"><span class="comparison-bar-fill competitor" style="width: {{comparisonReport.comparison.scores.aeo.competitor}}%"></span></span>
+            <strong>{{comparisonReport.comparison.scores.aeo.competitor}}</strong>
+          </div>
+        </div>
       </div>
       <div class="comparison-metric">
         <div class="comparison-label">GEO</div>
@@ -539,32 +765,58 @@
             {{signedNumber comparisonReport.comparison.scores.geo.delta}}
           </span>
         </div>
+        <div class="comparison-bar">
+          <div class="comparison-bar-row">
+            <span>Target</span>
+            <span class="comparison-bar-track"><span class="comparison-bar-fill" style="width: {{comparisonReport.comparison.scores.geo.target}}%"></span></span>
+            <strong>{{comparisonReport.comparison.scores.geo.target}}</strong>
+          </div>
+          <div class="comparison-bar-row">
+            <span>Competitor</span>
+            <span class="comparison-bar-track"><span class="comparison-bar-fill competitor" style="width: {{comparisonReport.comparison.scores.geo.competitor}}%"></span></span>
+            <strong>{{comparisonReport.comparison.scores.geo.competitor}}</strong>
+          </div>
+        </div>
       </div>
     </div>
 
     <div class="comparison-columns">
       <div>
-        <div class="comparison-column-title">Target advantages</div>
-        {{#if comparisonReport.comparison.target_advantages.length}}
+        <div class="comparison-column-title">What to copy from the competitor</div>
+        <div class="comparison-column-subtitle">Checks where the competitor already has the stronger citation-readiness signal.</div>
+        {{#if comparisonReport.comparison.competitor_edges.length}}
         <ul class="comparison-list">
-          {{#each comparisonReport.comparison.target_advantages}}
-          <li>{{title}}</li>
-          {{/each}}
-        </ul>
-        {{else}}
-        <ul class="comparison-list"><li>No target-only passing checks.</li></ul>
-        {{/if}}
-      </div>
-      <div>
-        <div class="comparison-column-title">Competitor advantages</div>
-        {{#if comparisonReport.comparison.competitor_advantages.length}}
-        <ul class="comparison-list">
-          {{#each comparisonReport.comparison.competitor_advantages}}
-          <li>{{title}}</li>
+          {{#each comparisonReport.comparison.competitor_edges}}
+          <li>
+            <div class="comparison-list-title">
+              <span>{{title}}</span>
+              <span class="comparison-pill {{priority}}">{{priority}}</span>
+            </div>
+            <div class="comparison-list-body">{{action}}</div>
+          </li>
           {{/each}}
         </ul>
         {{else}}
         <ul class="comparison-list"><li>No competitor-only passing checks.</li></ul>
+        {{/if}}
+      </div>
+      <div>
+        <div class="comparison-column-title">Improve first</div>
+        <div class="comparison-column-subtitle">Prioritized target gaps, with competitor parity gaps boosted to the top.</div>
+        {{#if comparisonReport.comparison.improve_first.length}}
+        <ul class="comparison-list">
+          {{#each comparisonReport.comparison.improve_first}}
+          <li>
+            <div class="comparison-list-title">
+              <span>{{title}}</span>
+              <span class="comparison-pill {{priority}}">+{{score_impact}} pts</span>
+            </div>
+            <div class="comparison-list-body">{{action}}</div>
+          </li>
+          {{/each}}
+        </ul>
+        {{else}}
+        <ul class="comparison-list"><li>No priority improvements found.</li></ul>
         {{/if}}
       </div>
     </div>

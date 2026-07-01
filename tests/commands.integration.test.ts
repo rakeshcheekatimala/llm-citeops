@@ -127,7 +127,11 @@ test('runAudit compares target and competitor URL reports', async () => {
     assert.equal(report.competitor.audits.length, 12);
     assert.equal(typeof report.comparison.scores.composite.delta, 'number');
     assert.ok(Array.isArray(report.comparison.audit_deltas));
+    assert.equal(typeof report.comparison.leader.label, 'string');
+    assert.ok(Array.isArray(report.comparison.competitor_edges));
+    assert.ok(Array.isArray(report.comparison.improve_first));
     assert.match(logs.join('\n'), /citeops Compare Summary/);
+    assert.match(logs.join('\n'), /Improve first|Competitor edge/);
   } finally {
     await server.close();
   }
