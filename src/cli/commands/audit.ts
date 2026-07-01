@@ -2,12 +2,16 @@ import ora from 'ora';
 import chalk from 'chalk';
 import path from 'path';
 import {
+  AuditDelta,
   AuditOptions,
   AuditResult,
   CiteopsConfig,
+  ComparisonInsight,
+  ComparisonLeader,
   ComparisonReport,
   ComparisonSummary,
   PageContent,
+  Priority,
   Report,
 } from '../../types/index.js';
 import { loadConfig } from '../../config/index.js';
@@ -229,6 +233,12 @@ function buildComparisonSummary(target: Report, competitor: Report): ComparisonS
       delta: targetAudit.score - competitorAudit.score,
     };
   });
+  const targetAdvantages = audit_deltas
+    .filter((audit) => audit.delta > 0)
+    .sort((a, b) => rankAuditDelta(b, target) - rankAuditDelta(a, target));
+  const competitorAdvantages = audit_deltas
+    .filter((audit) => audit.delta < 0)
+    .sort((a, b) => rankAuditDelta(b, target) - rankAuditDelta(a, target));
 
   return {
     scores: {
@@ -236,9 +246,12 @@ function buildComparisonSummary(target: Report, competitor: Report): ComparisonS
       aeo: scoreDelta(target.scores.aeo, competitor.scores.aeo),
       geo: scoreDelta(target.scores.geo, competitor.scores.geo),
     },
+    leader: buildComparisonLeader(target, competitor),
     audit_deltas,
-    target_advantages: audit_deltas.filter((audit) => audit.delta > 0),
-    competitor_advantages: audit_deltas.filter((audit) => audit.delta < 0),
+    target_advantages: targetAdvantages,
+    competitor_advantages: competitorAdvantages,
+    competitor_edges: competitorAdvantages.map((audit) => buildCompetitorEdge(audit, target)),
+    improve_first: buildImproveFirst(audit_deltas, target),
   };
 }
 
@@ -256,6 +269,103 @@ function scoreDelta(target: number, competitor: number): { target: number; compe
     competitor,
     delta: target - competitor,
   };
+}
+
+function buildComparisonLeader(target: Report, competitor: Report): ComparisonLeader {
+  const delta = target.scores.composite - competitor.scores.composite;
+  const score_gap = Math.abs(delta);
+
+  if (delta === 0) {
+    return {
+      role: 'tie',
+      label: 'Even match',
+      score_gap,
+      summary: `Both pages scored ${target.scores.composite}. Use the opportunities below to create a visible lead.`,
+    };
+  }
+
+  if (delta > 0) {
+    return {
+      role: 'target',
+      label: 'Target leads',
+      score_gap,
+      summary: `Target leads by ${score_gap} point${score_gap === 1 ? '' : 's'}, but competitor gaps still show what to defend.`,
+    };
+  }
+
+  return {
+    role: 'competitor',
+    label: 'Competitor leads',
+    score_gap,
+    summary: `Competitor leads by ${score_gap} point${score_gap === 1 ? '' : 's'}. Prioritize the checks they pass and target misses.`,
+  };
+}
+
+function buildCompetitorEdge(audit: AuditDelta, target: Report): ComparisonInsight {
+  const targetAudit = findAudit(target.audits, audit.id);
+  const score_impact = targetAudit.recommendation?.score_impact ?? Math.round(targetAudit.weight * 10);
+  const priority = targetAudit.recommendation?.priority ?? priorityFromImpact(score_impact);
+
+  return {
+    id: audit.id,
+    category: audit.category,
+    title: audit.title,
+    target_status: audit.target_status,
+    competitor_status: audit.competitor_status,
+    priority,
+    score_impact,
+    reason: `Competitor passes this check while the target is ${audit.target_status}.`,
+    action: targetAudit.recommendation?.instruction ?? `Match the competitor's coverage for ${audit.title.toLowerCase()}.`,
+  };
+}
+
+function buildImproveFirst(
+  auditDeltas: AuditDelta[],
+  target: Report
+): ComparisonInsight[] {
+  const deltaById = new Map(auditDeltas.map((audit) => [audit.id, audit]));
+
+  return target.audits
+    .filter((audit) => audit.status !== 'pass')
+    .map((audit) => {
+      const delta = deltaById.get(audit.id);
+      const score_impact = audit.recommendation?.score_impact ?? Math.round(audit.weight * 10);
+      const competitorHasEdge = delta?.competitor_status === 'pass';
+
+      return {
+        id: audit.id,
+        category: audit.category,
+        title: audit.title,
+        target_status: audit.status,
+        competitor_status: delta?.competitor_status ?? 'fail',
+        priority: audit.recommendation?.priority ?? priorityFromImpact(score_impact),
+        score_impact,
+        reason: competitorHasEdge
+          ? 'Competitor already passes this check, making it an immediate parity gap.'
+          : 'High-impact target issue that can lift the report even without a competitor gap.',
+        action: audit.recommendation?.instruction ?? `Improve ${audit.title.toLowerCase()} to recover score and citation readiness.`,
+      };
+    })
+    .sort((a, b) => insightRank(b) - insightRank(a))
+    .slice(0, 5);
+}
+
+function rankAuditDelta(delta: AuditDelta, target: Report): number {
+  const targetAudit = findAudit(target.audits, delta.id);
+  const impact = targetAudit.recommendation?.score_impact ?? Math.round(targetAudit.weight * 10);
+  return impact + Math.abs(delta.delta) * 100;
+}
+
+function insightRank(insight: ComparisonInsight): number {
+  const competitorEdgeBoost = insight.competitor_status === 'pass' && insight.target_status !== 'pass' ? 1000 : 0;
+  const priorityBoost = insight.priority === 'high' ? 100 : insight.priority === 'medium' ? 50 : 10;
+  return competitorEdgeBoost + priorityBoost + insight.score_impact;
+}
+
+function priorityFromImpact(scoreImpact: number): Priority {
+  if (scoreImpact >= 13) return 'high';
+  if (scoreImpact >= 10) return 'medium';
+  return 'low';
 }
 
 function printSummary(report: Report): void {
@@ -303,12 +413,23 @@ function printComparisonSummary(report: ComparisonReport): void {
   const composite = comparison.scores.composite;
   const deltaColor =
     composite.delta > 0 ? chalk.green : composite.delta < 0 ? chalk.red : chalk.yellow;
+  const leaderColor =
+    comparison.leader.role === 'target'
+      ? chalk.green
+      : comparison.leader.role === 'competitor'
+        ? chalk.red
+        : chalk.yellow;
 
   console.log('\n' + chalk.bold('─'.repeat(60)));
   console.log(chalk.bold('  citeops Compare Summary'));
   console.log(chalk.bold('─'.repeat(60)));
   console.log(`  Target:     ${chalk.cyan(target.url)}`);
   console.log(`  Competitor: ${chalk.cyan(competitor.url)}`);
+  console.log(
+    `  Leader:     ${leaderColor.bold(comparison.leader.label)} ${chalk.dim(
+      `(${comparison.leader.score_gap} pt gap)`
+    )}`
+  );
   console.log(
     `  Composite:  ${chalk.bold(String(composite.target))} vs ${chalk.bold(
       String(composite.competitor)
@@ -325,19 +446,28 @@ function printComparisonSummary(report: ComparisonReport): void {
     )})`
   );
 
-  if (comparison.target_advantages.length > 0) {
-    console.log(chalk.green.bold(`\n  Target advantages (${comparison.target_advantages.length}):`));
-    for (const audit of comparison.target_advantages.slice(0, 5)) {
-      console.log(`  ${chalk.green('✔')} ${audit.title}`);
+  if (comparison.improve_first.length > 0) {
+    console.log(chalk.yellow.bold(`\n  Improve first:`));
+    for (const insight of comparison.improve_first.slice(0, 3)) {
+      console.log(
+        `  ${chalk.yellow('→')} ${insight.title} ${chalk.dim(
+          `[${insight.priority}, +${insight.score_impact} pts]`
+        )}`
+      );
     }
   }
 
-  if (comparison.competitor_advantages.length > 0) {
-    console.log(
-      chalk.red.bold(`\n  Competitor advantages (${comparison.competitor_advantages.length}):`)
-    );
-    for (const audit of comparison.competitor_advantages.slice(0, 5)) {
-      console.log(`  ${chalk.red('✖')} ${audit.title}`);
+  if (comparison.competitor_edges.length > 0) {
+    console.log(chalk.red.bold(`\n  Competitor edge (${comparison.competitor_edges.length}):`));
+    for (const insight of comparison.competitor_edges.slice(0, 3)) {
+      console.log(`  ${chalk.red('•')} ${insight.title} ${chalk.dim(`copy/fix: ${insight.priority}`)}`);
+    }
+  }
+
+  if (comparison.target_advantages.length > 0) {
+    console.log(chalk.green.bold(`\n  Target advantages (${comparison.target_advantages.length}):`));
+    for (const audit of comparison.target_advantages.slice(0, 3)) {
+      console.log(`  ${chalk.green('✔')} ${audit.title}`);
     }
   }
 

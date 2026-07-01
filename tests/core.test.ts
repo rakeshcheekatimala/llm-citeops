@@ -183,6 +183,12 @@ test('comparison reporters include target, competitor, and score deltas', () => 
         aeo: { target: 90, competitor: 50, delta: 40 },
         geo: { target: 70, competitor: 70, delta: 0 },
       },
+      leader: {
+        role: 'target',
+        label: 'Target leads',
+        score_gap: 20,
+        summary: 'Target leads by 20 points, but competitor gaps still show what to defend.',
+      },
       audit_deltas: [
         {
           id: 'faq_schema',
@@ -229,6 +235,32 @@ test('comparison reporters include target, competitor, and score deltas', () => 
           delta: -1,
         },
       ],
+      competitor_edges: [
+        {
+          id: 'external_links',
+          category: 'geo',
+          title: 'External links',
+          target_status: 'fail',
+          competitor_status: 'pass',
+          priority: 'medium',
+          score_impact: 10,
+          reason: 'Competitor passes this check while the target is fail.',
+          action: 'Add authoritative external citations.',
+        },
+      ],
+      improve_first: [
+        {
+          id: 'external_links',
+          category: 'geo',
+          title: 'External links',
+          target_status: 'fail',
+          competitor_status: 'pass',
+          priority: 'medium',
+          score_impact: 10,
+          reason: 'Competitor already passes this check, making it an immediate parity gap.',
+          action: 'Add authoritative external citations.',
+        },
+      ],
     },
   };
 
@@ -241,7 +273,9 @@ test('comparison reporters include target, competitor, and score deltas', () => 
   assert.match(csv, /target,https:\/\/example.com\/target/);
   assert.match(csv, /competitor,https:\/\/example.com\/competitor/);
   assert.match(html, /Competitor Comparison/);
-  assert.match(html, /Target advantages/);
+  assert.match(html, /What to copy from the competitor/);
+  assert.match(html, /Improve first/);
+  assert.match(html, /Target leads/);
 });
 
 test('CSV reporter escapes fields with commas, quotes, and new lines', () => {

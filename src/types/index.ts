@@ -69,15 +69,39 @@ export interface AuditDelta {
   delta: number;
 }
 
+export type ComparisonLeaderRole = 'target' | 'competitor' | 'tie';
+
+export interface ComparisonLeader {
+  role: ComparisonLeaderRole;
+  label: string;
+  score_gap: number;
+  summary: string;
+}
+
+export interface ComparisonInsight {
+  id: string;
+  category: AuditCategory;
+  title: string;
+  target_status: AuditStatus;
+  competitor_status: AuditStatus;
+  priority: Priority;
+  score_impact: number;
+  reason: string;
+  action: string;
+}
+
 export interface ComparisonSummary {
   scores: {
     composite: ScoreDelta;
     aeo: ScoreDelta;
     geo: ScoreDelta;
   };
+  leader: ComparisonLeader;
   audit_deltas: AuditDelta[];
   target_advantages: AuditDelta[];
   competitor_advantages: AuditDelta[];
+  competitor_edges: ComparisonInsight[];
+  improve_first: ComparisonInsight[];
 }
 
 export interface ComparisonReport {

@@ -1,0 +1,1314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>citeops Report — https://www.starhub.com/personal.html</title>
+  <style>
+    :root {
+      --bg: #f8f9fa;
+      --surface: #ffffff;
+      --border: #e0e0e0;
+      --text: #1a1a1a;
+      --text-secondary: #5f6368;
+      --pass: #0cce6b;
+      --fail: #ff4e42;
+      --warn: #ffa400;
+      --poor: #ff4e42;
+      --needs-improvement: #ffa400;
+      --good: #0cce6b;
+      --excellent: #0cce6b;
+      --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+      --radius: 8px;
+      --shadow: 0 1px 3px rgba(0,0,0,.12), 0 1px 2px rgba(0,0,0,.08);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    /* ── HEADER ── */
+    .header {
+      background: #1a1a2e;
+      color: #fff;
+      padding: 20px 0;
+    }
+    .header-inner {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .logo { font-size: 1.4rem; font-weight: 700; letter-spacing: -0.5px; }
+    .logo span { color: #7c3aed; }
+    .header-url {
+      font-size: .85rem;
+      color: rgba(255,255,255,.6);
+      word-break: break-all;
+    }
+    .header-meta {
+      margin-left: auto;
+      text-align: right;
+      font-size: .8rem;
+      color: rgba(255,255,255,.5);
+    }
+
+    /* ── LAYOUT ── */
+    .container { max-width: 1080px; margin: 0 auto; padding: 32px 24px; }
+
+    /* ── SCORE SUMMARY ── */
+    .score-summary {
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 32px;
+      margin-bottom: 32px;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 32px;
+      align-items: center;
+    }
+
+    .gauge-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+    .gauge-wrap.composite { grid-column: 1; }
+
+    .gauge-label {
+      font-size: .75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--text-secondary);
+    }
+
+    .gauge {
+      position: relative;
+      width: 140px;
+      height: 140px;
+    }
+    .gauge svg { transform: rotate(-90deg); }
+    .gauge-track { fill: none; stroke: #e8eaed; stroke-width: 8; }
+    .gauge-fill { fill: none; stroke-width: 8; stroke-linecap: round; transition: stroke-dashoffset .6s ease; }
+    .gauge-score {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .gauge-number {
+      font-size: 2.2rem;
+      font-weight: 700;
+      line-height: 1;
+    }
+    .gauge-band {
+      font-size: .7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      margin-top: 2px;
+    }
+
+    .gauge.small { width: 100px; height: 100px; }
+    .gauge.small .gauge-number { font-size: 1.6rem; }
+    .gauge.small .gauge-band { font-size: .6rem; }
+
+    .sub-scores {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      grid-column: 2 / 4;
+    }
+    .sub-score-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .sub-score-info { flex: 1; }
+    .sub-score-name { font-size: .9rem; font-weight: 600; }
+    .sub-score-desc { font-size: .78rem; color: var(--text-secondary); }
+    .progress-bar-wrap { width: 220px; }
+    .progress-bar {
+      height: 8px;
+      background: #e8eaed;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width .6s ease;
+    }
+    .progress-label {
+      font-size: .8rem;
+      font-weight: 600;
+      margin-top: 4px;
+      text-align: right;
+    }
+
+    /* COMPARISON */
+    .comparison-brief {
+      display: grid;
+      grid-template-columns: minmax(220px, .8fr) 1.2fr;
+      gap: 20px;
+      padding: 24px;
+      border-bottom: 1px solid var(--border);
+      background: #fbfcff;
+    }
+    .comparison-leader {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+      background: #fff;
+    }
+    .comparison-kicker {
+      font-size: .7rem;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+    .comparison-leader-title {
+      font-size: 1.45rem;
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 8px;
+    }
+    .comparison-gap {
+      display: inline-flex;
+      align-items: baseline;
+      gap: 4px;
+      padding: 5px 9px;
+      border-radius: 999px;
+      background: #f1f3f4;
+      font-weight: 800;
+      margin-bottom: 12px;
+    }
+    .comparison-gap strong { font-size: 1.35rem; line-height: 1; }
+    .comparison-summary {
+      font-size: .86rem;
+      color: var(--text-secondary);
+      line-height: 1.45;
+    }
+    .comparison-now {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    .comparison-now-panel {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: #fff;
+      padding: 16px;
+      min-width: 0;
+    }
+    .comparison-panel-title {
+      font-size: .82rem;
+      font-weight: 800;
+      margin-bottom: 10px;
+    }
+    .comparison-action-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+      font-size: .84rem;
+      color: var(--text);
+    }
+    .comparison-action-list li {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 8px;
+      align-items: start;
+    }
+    .comparison-rank {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #fef7e0;
+      color: #b06000;
+      font-size: .72rem;
+      font-weight: 800;
+      line-height: 1;
+    }
+    .comparison-action-meta {
+      display: block;
+      margin-top: 2px;
+      color: var(--text-secondary);
+      font-size: .74rem;
+      line-height: 1.35;
+    }
+    .comparison-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      padding: 24px;
+      border-bottom: 1px solid var(--border);
+    }
+    .comparison-metric {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      background: #fff;
+    }
+    .comparison-label {
+      font-size: .72rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .comparison-values {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      font-size: .9rem;
+      color: var(--text-secondary);
+    }
+    .comparison-values strong {
+      font-size: 1.8rem;
+      color: var(--text);
+      line-height: 1;
+    }
+    .comparison-bar {
+      margin-top: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+    .comparison-bar-row {
+      display: grid;
+      grid-template-columns: 74px 1fr 32px;
+      gap: 8px;
+      align-items: center;
+      font-size: .73rem;
+      color: var(--text-secondary);
+    }
+    .comparison-bar-track {
+      height: 7px;
+      border-radius: 999px;
+      background: #e8eaed;
+      overflow: hidden;
+    }
+    .comparison-bar-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: #1a73e8;
+    }
+    .comparison-bar-fill.competitor { background: #c2185b; }
+    .delta-positive { color: var(--pass); font-weight: 700; }
+    .delta-negative { color: var(--fail); font-weight: 700; }
+    .delta-neutral { color: var(--text-secondary); font-weight: 700; }
+    .comparison-columns {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      padding: 24px;
+    }
+    .comparison-column-title {
+      font-size: .85rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+    .comparison-column-subtitle {
+      font-size: .76rem;
+      color: var(--text-secondary);
+      margin: -6px 0 12px;
+      line-height: 1.45;
+    }
+    .comparison-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      font-size: .84rem;
+      color: var(--text);
+    }
+    .comparison-list li {
+      padding: 10px 12px;
+      background: #f8f9fa;
+      border-radius: 4px;
+      border-left: 3px solid var(--border);
+    }
+    .comparison-list-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .comparison-list-body {
+      color: var(--text-secondary);
+      line-height: 1.45;
+    }
+    .comparison-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 1px 7px;
+      border-radius: 999px;
+      background: #e8f0fe;
+      color: #1a73e8;
+      font-size: .68rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+    .comparison-pill.high { background: #fce8e6; color: #c5221f; }
+    .comparison-pill.medium { background: #fef7e0; color: #b06000; }
+    .comparison-pill.low { background: #e8f0fe; color: #1a73e8; }
+
+    /* ── SECTION CARDS ── */
+    .section {
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      margin-bottom: 24px;
+      overflow: hidden;
+    }
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 24px;
+      cursor: pointer;
+      user-select: none;
+      border-bottom: 1px solid var(--border);
+    }
+    .section-header:hover { background: #f5f5f5; }
+    .section-title { font-size: 1rem; font-weight: 600; }
+    .section-count {
+      font-size: .75rem;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 12px;
+      background: #e8eaed;
+      color: var(--text-secondary);
+    }
+    .section-count.fail-count { background: #fce8e6; color: var(--fail); }
+    .section-count.pass-count { background: #e6f4ea; color: var(--pass); }
+    .chevron {
+      margin-left: auto;
+      font-size: 1rem;
+      color: var(--text-secondary);
+      transition: transform .2s;
+    }
+    .section-body { padding: 0; }
+    .section-body.collapsed { display: none; }
+
+    /* ── AUDIT ROWS ── */
+    .audit-item {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border);
+    }
+    .audit-item:last-child { border-bottom: none; }
+
+    .audit-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+    .audit-status-badge {
+      flex-shrink: 0;
+      font-size: .7rem;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      margin-top: 2px;
+    }
+    .badge-pass { background: #e6f4ea; color: #137333; }
+    .badge-fail { background: #fce8e6; color: #c5221f; }
+    .badge-warn { background: #fef7e0; color: #b06000; }
+
+    .audit-title { font-size: .95rem; font-weight: 600; flex: 1; }
+    .audit-category-tag {
+      font-size: .68rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 10px;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      flex-shrink: 0;
+    }
+    .tag-aeo { background: #e8f0fe; color: #1a73e8; }
+    .tag-geo { background: #fce4ec; color: #c2185b; }
+
+    .audit-evidence {
+      font-size: .82rem;
+      color: var(--text-secondary);
+      padding: 8px 12px;
+      background: #f8f9fa;
+      border-radius: 4px;
+      border-left: 3px solid var(--border);
+      margin: 8px 0;
+      font-family: var(--mono);
+    }
+
+    /* ── RECOMMENDATION BLOCK ── */
+    .recommendation {
+      margin-top: 16px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .rec-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 16px;
+      background: #f8f9fa;
+      border-bottom: 1px solid var(--border);
+    }
+    .rec-header-title { font-size: .8rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--text-secondary); }
+    .priority-badge {
+      font-size: .68rem;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 10px;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+    }
+    .priority-high { background: #fce8e6; color: #c5221f; }
+    .priority-medium { background: #fef7e0; color: #b06000; }
+    .priority-low { background: #e8f0fe; color: #1a73e8; }
+
+    .score-impact {
+      margin-left: auto;
+      font-size: .78rem;
+      font-weight: 600;
+      color: var(--pass);
+    }
+
+    .rec-body { padding: 14px 16px; }
+    .rec-instruction {
+      font-size: .88rem;
+      color: var(--text);
+      margin-bottom: 12px;
+      line-height: 1.6;
+    }
+
+    .code-block {
+      background: #1a1a2e;
+      color: #e8e8e8;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .code-block-header {
+      display: flex;
+      align-items: center;
+      padding: 8px 14px;
+      background: rgba(255,255,255,.05);
+      border-bottom: 1px solid rgba(255,255,255,.1);
+      font-size: .72rem;
+      color: rgba(255,255,255,.5);
+      font-family: var(--mono);
+    }
+    .copy-btn {
+      margin-left: auto;
+      background: rgba(255,255,255,.1);
+      border: none;
+      color: rgba(255,255,255,.7);
+      font-size: .72rem;
+      padding: 3px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: var(--font);
+    }
+    .copy-btn:hover { background: rgba(255,255,255,.2); }
+    .code-block pre {
+      padding: 14px;
+      font-size: .82rem;
+      font-family: var(--mono);
+      white-space: pre;
+      overflow-x: auto;
+      line-height: 1.5;
+      color: #e8e8e8;
+    }
+
+    /* ── PASSED SECTION ── */
+    .passed-section .section-header { cursor: pointer; }
+    .audit-item.passed .audit-title { color: var(--text-secondary); }
+
+    /* ── FOOTER ── */
+    .footer {
+      text-align: center;
+      padding: 32px 24px;
+      color: var(--text-secondary);
+      font-size: .8rem;
+      border-top: 1px solid var(--border);
+      margin-top: 40px;
+    }
+    .footer a { color: #7c3aed; text-decoration: none; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 720px) {
+      .score-summary { grid-template-columns: 1fr; }
+      .sub-scores { grid-column: 1; }
+      .progress-bar-wrap { width: 140px; }
+      .comparison-brief,
+      .comparison-now,
+      .comparison-grid,
+      .comparison-columns { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <div>
+      <div class="logo">cite<span>ops</span></div>
+      <div class="header-url">https://www.starhub.com/personal.html</div>
+    </div>
+    <div class="header-meta">
+      Generated 7/1/2026, 9:31:51 PM<br />
+      citeops v1.0
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- SCORE SUMMARY -->
+  <div class="score-summary">
+    <div class="gauge-wrap composite">
+      <div class="gauge-label">Composite Score</div>
+      <div class="gauge">
+        <svg viewBox="0 0 120 120" width="140" height="140">
+          <circle class="gauge-track" cx="60" cy="60" r="54" />
+          <circle
+            class="gauge-fill"
+            cx="60" cy="60" r="54"
+            stroke="#ff4e42"
+            stroke-dasharray="339.3"
+            stroke-dashoffset="281.619"
+          />
+        </svg>
+        <div class="gauge-score">
+          <span class="gauge-number" style="color: #ff4e42">17</span>
+          <span class="gauge-band" style="color: #ff4e42"></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="sub-scores">
+      <div class="sub-score-row">
+        <div class="gauge small">
+          <svg viewBox="0 0 120 120" width="100" height="100">
+            <circle class="gauge-track" cx="60" cy="60" r="54" />
+            <circle
+              class="gauge-fill"
+              cx="60" cy="60" r="54"
+              stroke="#1a73e8"
+              stroke-dasharray="339.3"
+              stroke-dashoffset="271.44"
+            />
+          </svg>
+          <div class="gauge-score">
+            <span class="gauge-number" style="color: #1a73e8">20</span>
+          </div>
+        </div>
+        <div class="sub-score-info">
+          <div class="sub-score-name">AEO Score</div>
+          <div class="sub-score-desc">Answer Engine Optimization — FAQ schema, direct answers, Q&amp;A density, readability, entities, author</div>
+        </div>
+      </div>
+
+      <div class="sub-score-row">
+        <div class="gauge small">
+          <svg viewBox="0 0 120 120" width="100" height="100">
+            <circle class="gauge-track" cx="60" cy="60" r="54" />
+            <circle
+              class="gauge-fill"
+              cx="60" cy="60" r="54"
+              stroke="#c2185b"
+              stroke-dasharray="339.3"
+              stroke-dashoffset="291.798"
+            />
+          </svg>
+          <div class="gauge-score">
+            <span class="gauge-number" style="color: #c2185b">14</span>
+          </div>
+        </div>
+        <div class="sub-score-info">
+          <div class="sub-score-name">GEO Score</div>
+          <div class="sub-score-desc">Generative Engine Optimization — topical depth, EEAT, freshness, citations, comparisons, citation likelihood</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section comparison-section">
+    <div class="section-header">
+      <span class="section-title">Competitor Comparison</span>
+      <span class="section-count">target vs competitor</span>
+    </div>
+
+    <div class="comparison-brief">
+      <div class="comparison-leader">
+        <div class="comparison-kicker">Winner signal</div>
+        <div class="comparison-leader-title">Competitor leads</div>
+        <div class="comparison-gap">
+          <strong>7</strong>
+          <span>point gap</span>
+        </div>
+        <p class="comparison-summary">Competitor leads by 7 points. Prioritize the checks they pass and target misses.</p>
+      </div>
+
+      <div class="comparison-now">
+        <div class="comparison-now-panel">
+          <div class="comparison-panel-title">Improve first</div>
+          <ul class="comparison-action-list">
+            <li>
+              <span class="comparison-rank">1</span>
+              <span>Q&amp;A density (questions per 500 words)<span class="comparison-action-meta">high priority · +8 pts · Competitor already passes this check, making it an immediate parity gap.</span></span>
+            </li>
+            <li>
+              <span class="comparison-rank">2</span>
+              <span>Readability grade ≤ 10<span class="comparison-action-meta">medium priority · +5 pts · Competitor already passes this check, making it an immediate parity gap.</span></span>
+            </li>
+            <li>
+              <span class="comparison-rank">3</span>
+              <span>FAQ / HowTo schema present<span class="comparison-action-meta">high priority · +8 pts · High-impact target issue that can lift the report even without a competitor gap.</span></span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="comparison-now-panel">
+          <div class="comparison-panel-title">Competitor edge</div>
+          <ul class="comparison-action-list">
+            <li>
+              <span class="comparison-rank">1</span>
+              <span>Q&amp;A density (questions per 500 words)<span class="comparison-action-meta">Competitor passes this check while the target is fail.</span></span>
+            </li>
+            <li>
+              <span class="comparison-rank">2</span>
+              <span>Readability grade ≤ 10<span class="comparison-action-meta">Competitor passes this check while the target is fail.</span></span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="comparison-grid">
+      <div class="comparison-metric">
+        <div class="comparison-label">Composite</div>
+        <div class="comparison-values">
+          <strong>17</strong>
+          <span>vs 24</span>
+          <span class="delta-negative">
+            -7
+          </span>
+        </div>
+        <div class="comparison-bar">
+          <div class="comparison-bar-row">
+            <span>Target</span>
+            <span class="comparison-bar-track"><span class="comparison-bar-fill" style="width: 17%"></span></span>
+            <strong>17</strong>
+          </div>
+          <div class="comparison-bar-row">
+            <span>Competitor</span>
+            <span class="comparison-bar-track"><span class="comparison-bar-fill competitor" style="width: 24%"></span></span>
+            <strong>24</strong>
+          </div>
+        </div>
+      </div>
+      <div class="comparison-metric">
+        <div class="comparison-label">AEO</div>
+        <div class="comparison-values">
+          <strong>20</strong>
+          <span>vs 33</span>
+          <span class="delta-negative">
+            -13
+          </span>
+        </div>
+        <div class="comparison-bar">
+          <div class="comparison-bar-row">
+            <span>Target</span>
+            <span class="comparison-bar-track"><span class="comparison-bar-fill" style="width: 20%"></span></span>
+            <strong>20</strong>
+          </div>
+          <div class="comparison-bar-row">
+            <span>Competitor</span>
+            <span class="comparison-bar-track"><span class="comparison-bar-fill competitor" style="width: 33%"></span></span>
+            <strong>33</strong>
+          </div>
+        </div>
+      </div>
+      <div class="comparison-metric">
+        <div class="comparison-label">GEO</div>
+        <div class="comparison-values">
+          <strong>14</strong>
+          <span>vs 14</span>
+          <span class="delta-neutral">
+            0
+          </span>
+        </div>
+        <div class="comparison-bar">
+          <div class="comparison-bar-row">
+            <span>Target</span>
+            <span class="comparison-bar-track"><span class="comparison-bar-fill" style="width: 14%"></span></span>
+            <strong>14</strong>
+          </div>
+          <div class="comparison-bar-row">
+            <span>Competitor</span>
+            <span class="comparison-bar-track"><span class="comparison-bar-fill competitor" style="width: 14%"></span></span>
+            <strong>14</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="comparison-columns">
+      <div>
+        <div class="comparison-column-title">What to copy from the competitor</div>
+        <div class="comparison-column-subtitle">Checks where the competitor already has the stronger citation-readiness signal.</div>
+        <ul class="comparison-list">
+          <li>
+            <div class="comparison-list-title">
+              <span>Q&amp;A density (questions per 500 words)</span>
+              <span class="comparison-pill high">high</span>
+            </div>
+            <div class="comparison-list-body">Add question-framed H2 and H3 headings throughout your content. Aim for at least 2 questions per 500 words. Question headings signal AEO readiness and give LLMs clear anchors for answer extraction.</div>
+          </li>
+          <li>
+            <div class="comparison-list-title">
+              <span>Readability grade ≤ 10</span>
+              <span class="comparison-pill medium">medium</span>
+            </div>
+            <div class="comparison-list-body">Simplify long, complex sentences to bring your Flesch-Kincaid grade level to ≤10. Split sentences longer than 25 words into two. Replace jargon with plain-language equivalents. LLMs prefer content that reads at a general audience level.</div>
+          </li>
+        </ul>
+      </div>
+      <div>
+        <div class="comparison-column-title">Improve first</div>
+        <div class="comparison-column-subtitle">Prioritized target gaps, with competitor parity gaps boosted to the top.</div>
+        <ul class="comparison-list">
+          <li>
+            <div class="comparison-list-title">
+              <span>Q&amp;A density (questions per 500 words)</span>
+              <span class="comparison-pill high">+8 pts</span>
+            </div>
+            <div class="comparison-list-body">Add question-framed H2 and H3 headings throughout your content. Aim for at least 2 questions per 500 words. Question headings signal AEO readiness and give LLMs clear anchors for answer extraction.</div>
+          </li>
+          <li>
+            <div class="comparison-list-title">
+              <span>Readability grade ≤ 10</span>
+              <span class="comparison-pill medium">+5 pts</span>
+            </div>
+            <div class="comparison-list-body">Simplify long, complex sentences to bring your Flesch-Kincaid grade level to ≤10. Split sentences longer than 25 words into two. Replace jargon with plain-language equivalents. LLMs prefer content that reads at a general audience level.</div>
+          </li>
+          <li>
+            <div class="comparison-list-title">
+              <span>FAQ / HowTo schema present</span>
+              <span class="comparison-pill high">+8 pts</span>
+            </div>
+            <div class="comparison-list-body">Add a FAQPage or HowTo JSON-LD block to your &lt;head&gt;. LLMs heavily weight structured FAQ schema when selecting content to cite in answer responses. Pages without it are deprioritized in AI summaries.</div>
+          </li>
+          <li>
+            <div class="comparison-list-title">
+              <span>Topical depth score (subtopic coverage)</span>
+              <span class="comparison-pill high">+7 pts</span>
+            </div>
+            <div class="comparison-list-body">Your content&#x27;s key topic terms are not reflected in your headings. Add H2/H3 sections that cover the main subtopics identified by TF-IDF analysis. Comprehensive topical coverage increases the likelihood LLMs will cite your page as an authoritative source.</div>
+          </li>
+          <li>
+            <div class="comparison-list-title">
+              <span>Trust signals (EEAT) — author, org, sources</span>
+              <span class="comparison-pill high">+7 pts</span>
+            </div>
+            <div class="comparison-list-body">Strengthen EEAT signals by adding missing Schema.org fields. LLMs use structured metadata to evaluate trustworthiness.</div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- FAILING AUDITS / RECOMMENDATIONS -->
+  <div class="section">
+    <div class="section-header" onclick="toggleSection(this)">
+      <span class="section-title">Recommendations</span>
+      <span class="section-count fail-count">10 issues</span>
+      <span class="chevron">▾</span>
+    </div>
+    <div class="section-body">
+      <div class="audit-item">
+        <div class="audit-header">
+          <span class="audit-status-badge badge-fail">
+            FAIL
+          </span>
+          <span class="audit-title">FAQ / HowTo schema present</span>
+          <span class="audit-category-tag tag-aeo">AEO</span>
+        </div>
+
+        <div class="audit-evidence">No &lt;script type&#x3D;&quot;application/ld+json&quot;&gt; with @type FAQPage or HowTo found in &lt;head&gt;.</div>
+
+        <div class="recommendation">
+          <div class="rec-header">
+            <span class="rec-header-title">How to fix</span>
+            <span class="priority-badge priority-high">
+              High priority
+            </span>
+            <span class="score-impact">+8 pts</span>
+          </div>
+          <div class="rec-body">
+            <p class="rec-instruction">Add a FAQPage or HowTo JSON-LD block to your &lt;head&gt;. LLMs heavily weight structured FAQ schema when selecting content to cite in answer responses. Pages without it are deprioritized in AI summaries.</p>
+            <div class="code-block">
+              <div class="code-block-header">
+                <span>Suggested code</span>
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+              </div>
+              <pre>&amp;lt;script type&#x3D;&quot;application/ld+json&quot;&amp;gt;
+{
+  &quot;@context&quot;: &quot;https://schema.org&quot;,
+  &quot;@type&quot;: &quot;FAQPage&quot;,
+  &quot;mainEntity&quot;: [
+    {
+      &quot;@type&quot;: &quot;Question&quot;,
+      &quot;name&quot;: &quot;What is [your main topic]?&quot;,
+      &quot;acceptedAnswer&quot;: {
+        &quot;@type&quot;: &quot;Answer&quot;,
+        &quot;text&quot;: &quot;Provide a concise, factual answer here (2–3 sentences).&quot;
+      }
+    },
+    {
+      &quot;@type&quot;: &quot;Question&quot;,
+      &quot;name&quot;: &quot;How does [your topic] work?&quot;,
+      &quot;acceptedAnswer&quot;: {
+        &quot;@type&quot;: &quot;Answer&quot;,
+        &quot;text&quot;: &quot;Step-by-step explanation here.&quot;
+      }
+    }
+  ]
+}
+&amp;lt;/script&amp;gt;</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="audit-item">
+        <div class="audit-header">
+          <span class="audit-status-badge badge-fail">
+            FAIL
+          </span>
+          <span class="audit-title">Q&amp;A density (questions per 500 words)</span>
+          <span class="audit-category-tag tag-aeo">AEO</span>
+        </div>
+
+        <div class="audit-evidence">Only 3 question(s) in 1060 words (1.4 per 500 words — target ≥2). Add question-framed headings or FAQ sections.</div>
+
+        <div class="recommendation">
+          <div class="rec-header">
+            <span class="rec-header-title">How to fix</span>
+            <span class="priority-badge priority-high">
+              High priority
+            </span>
+            <span class="score-impact">+8 pts</span>
+          </div>
+          <div class="rec-body">
+            <p class="rec-instruction">Add question-framed H2 and H3 headings throughout your content. Aim for at least 2 questions per 500 words. Question headings signal AEO readiness and give LLMs clear anchors for answer extraction.</p>
+            <div class="code-block">
+              <div class="code-block-header">
+                <span>Suggested code</span>
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+              </div>
+              <pre>&amp;lt;!-- Add question headings like these based on your topic --&amp;gt;
+&amp;lt;h2&amp;gt;What is [Topic] and how does it work?&amp;lt;/h2&amp;gt;
+&amp;lt;h2&amp;gt;When should you use [Topic]?&amp;lt;/h2&amp;gt;
+&amp;lt;h3&amp;gt;What are the common mistakes with [Topic]?&amp;lt;/h3&amp;gt;
+&amp;lt;h3&amp;gt;How is [Topic] different from [Alternative]?&amp;lt;/h3&amp;gt;
+&amp;lt;h2&amp;gt;Is [Topic] right for your use case?&amp;lt;/h2&amp;gt;</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="audit-item">
+        <div class="audit-header">
+          <span class="audit-status-badge badge-fail">
+            FAIL
+          </span>
+          <span class="audit-title">Topical depth score (subtopic coverage)</span>
+          <span class="audit-category-tag tag-geo">GEO</span>
+        </div>
+
+        <div class="audit-evidence">Only 4/10 key terms appear in headings (40% — target ≥60%). Missing topics: mobile, promotions, account, overview, deals.</div>
+
+        <div class="recommendation">
+          <div class="rec-header">
+            <span class="rec-header-title">How to fix</span>
+            <span class="priority-badge priority-high">
+              High priority
+            </span>
+            <span class="score-impact">+7 pts</span>
+          </div>
+          <div class="rec-body">
+            <p class="rec-instruction">Your content&#x27;s key topic terms are not reflected in your headings. Add H2/H3 sections that cover the main subtopics identified by TF-IDF analysis. Comprehensive topical coverage increases the likelihood LLMs will cite your page as an authoritative source.</p>
+          </div>
+        </div>
+      </div>
+      <div class="audit-item">
+        <div class="audit-header">
+          <span class="audit-status-badge badge-fail">
+            FAIL
+          </span>
+          <span class="audit-title">Trust signals (EEAT) — author, org, sources</span>
+          <span class="audit-category-tag tag-geo">GEO</span>
+        </div>
+
+        <div class="audit-evidence">Only 1 EEAT signal(s) found: 47 external sources. Missing: author, publisher, citation schema, publication date.</div>
+
+        <div class="recommendation">
+          <div class="rec-header">
+            <span class="rec-header-title">How to fix</span>
+            <span class="priority-badge priority-high">
+              High priority
+            </span>
+            <span class="score-impact">+7 pts</span>
+          </div>
+          <div class="rec-body">
+            <p class="rec-instruction">Strengthen EEAT signals by adding missing Schema.org fields. LLMs use structured metadata to evaluate trustworthiness.</p>
+            <div class="code-block">
+              <div class="code-block-header">
+                <span>Suggested code</span>
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+              </div>
+              <pre>&amp;lt;script type&#x3D;&quot;application/ld+json&quot;&amp;gt;
+{
+  &quot;@context&quot;: &quot;https://schema.org&quot;,
+  &quot;@type&quot;: &quot;Article&quot;,
+  &quot;author&quot;: {
+    &quot;@type&quot;: &quot;Person&quot;,
+    &quot;name&quot;: &quot;Author Name&quot;,
+    &quot;url&quot;: &quot;https://yoursite.com/author&quot;
+  },
+  &quot;publisher&quot;: {
+    &quot;@type&quot;: &quot;Organization&quot;,
+    &quot;name&quot;: &quot;Your Organization&quot;,
+    &quot;url&quot;: &quot;https://yoursite.com&quot;,
+    &quot;logo&quot;: {
+      &quot;@type&quot;: &quot;ImageObject&quot;,
+      &quot;url&quot;: &quot;https://yoursite.com/logo.png&quot;
+    }
+  },
+  &quot;datePublished&quot;: &quot;2024-01-01&quot;,
+  &quot;dateModified&quot;: &quot;2024-06-01&quot;,
+  &quot;citation&quot;: &quot;https://authoritative-source.com/article&quot;
+}
+&amp;lt;/script&amp;gt;</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="audit-item">
+        <div class="audit-header">
+          <span class="audit-status-badge badge-fail">
+            FAIL
+          </span>
+          <span class="audit-title">Citation likelihood signals</span>
+          <span class="audit-category-tag tag-geo">GEO</span>
+        </div>
+
+        <div class="audit-evidence">Only 2/5 citation signals present: structured schema, 47 external citations. Missing: author byline; FAQ/HowTo schema; structured headings (H2/H3 ≥3).</div>
+
+        <div class="recommendation">
+          <div class="rec-header">
+            <span class="rec-header-title">How to fix</span>
+            <span class="priority-badge priority-high">
+              High priority
+            </span>
+            <span class="score-impact">+7 pts</span>
+          </div>
+          <div class="rec-body">
+            <p class="rec-instruction">Your page has a low citation likelihood composite score. Focus on the highest-impact fixes above: (1) add FAQ/HowTo JSON-LD schema, (2) add an author byline, (3) add ≥3 external citations to authoritative sources. These three changes have the largest combined effect on AI citation selection.</p>
+          </div>
+        </div>
+      </div>
+      <div class="audit-item">
+        <div class="audit-header">
+          <span class="audit-status-badge badge-fail">
+            FAIL
+          </span>
+          <span class="audit-title">Content freshness (publish / modified date)</span>
+          <span class="audit-category-tag tag-geo">GEO</span>
+        </div>
+
+        <div class="audit-evidence">No publication or modification date found. Missing: dateModified, datePublished, article:published_time, or &lt;time datetime&gt;.</div>
+
+        <div class="recommendation">
+          <div class="rec-header">
+            <span class="rec-header-title">How to fix</span>
+            <span class="priority-badge priority-medium">
+              Medium priority
+            </span>
+            <span class="score-impact">+6 pts</span>
+          </div>
+          <div class="rec-body">
+            <p class="rec-instruction">Add or update the dateModified field in your Schema.org markup and Open Graph meta tags. LLMs prefer recent content — pages without a modification date are treated as potentially stale.</p>
+            <div class="code-block">
+              <div class="code-block-header">
+                <span>Suggested code</span>
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+              </div>
+              <pre>&amp;lt;!-- Open Graph / Article meta tags --&amp;gt;
+&amp;lt;meta property&#x3D;&quot;article:published_time&quot; content&#x3D;&quot;2024-01-15T00:00:00Z&quot; /&amp;gt;
+&amp;lt;meta property&#x3D;&quot;article:modified_time&quot; content&#x3D;&quot;2026-07-01T00:00:00Z&quot; /&amp;gt;
+
+&amp;lt;!-- HTML time element --&amp;gt;
+&amp;lt;time datetime&#x3D;&quot;2026-07-01&quot;&amp;gt;Last updated: July 1, 2026&amp;lt;/time&amp;gt;
+
+&amp;lt;!-- JSON-LD dateModified --&amp;gt;
+&amp;lt;script type&#x3D;&quot;application/ld+json&quot;&amp;gt;
+{
+  &quot;@context&quot;: &quot;https://schema.org&quot;,
+  &quot;@type&quot;: &quot;Article&quot;,
+  &quot;dateModified&quot;: &quot;2026-07-01&quot;
+}
+&amp;lt;/script&amp;gt;</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="audit-item">
+        <div class="audit-header">
+          <span class="audit-status-badge badge-fail">
+            FAIL
+          </span>
+          <span class="audit-title">Readability grade ≤ 10</span>
+          <span class="audit-category-tag tag-aeo">AEO</span>
+        </div>
+
+        <div class="audit-evidence">Flesch-Kincaid grade level: 12.8 (target ≤10). Complex sentences detected: &quot;Read more Got it Personal Business Enterprise About Us My Account Manage my account (Preferred) StarHub App Hub iD Login…&quot;</div>
+
+        <div class="recommendation">
+          <div class="rec-header">
+            <span class="rec-header-title">How to fix</span>
+            <span class="priority-badge priority-medium">
+              Medium priority
+            </span>
+            <span class="score-impact">+5 pts</span>
+          </div>
+          <div class="rec-body">
+            <p class="rec-instruction">Simplify long, complex sentences to bring your Flesch-Kincaid grade level to ≤10. Split sentences longer than 25 words into two. Replace jargon with plain-language equivalents. LLMs prefer content that reads at a general audience level.</p>
+            <div class="code-block">
+              <div class="code-block-header">
+                <span>Suggested code</span>
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+              </div>
+              <pre>&amp;lt;!-- Before (grade 14+) --&amp;gt;
+&amp;lt;p&amp;gt;The implementation of a comprehensive content optimization strategy that simultaneously
+addresses both the technical and editorial dimensions of AI-driven search visibility
+represents a paradigm shift in how organizations approach digital content architecture.&amp;lt;/p&amp;gt;
+
+&amp;lt;!-- After (grade 8) --&amp;gt;
+&amp;lt;p&amp;gt;Optimizing content for AI search requires two things: strong technical structure and
+clear writing. When you address both, your pages are more likely to appear in AI-generated
+answers. This is a new approach to content strategy.&amp;lt;/p&amp;gt;</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="audit-item">
+        <div class="audit-header">
+          <span class="audit-status-badge badge-fail">
+            FAIL
+          </span>
+          <span class="audit-title">Named entity coverage</span>
+          <span class="audit-category-tag tag-aeo">AEO</span>
+        </div>
+
+        <div class="audit-evidence">Weak named entity coverage — only 1 entity type(s) detected. Organizations: Personal Business Enterprise, Personal Personal Business Enterprise, Mobile Mobile. Missing: people, places.</div>
+
+        <div class="recommendation">
+          <div class="rec-header">
+            <span class="rec-header-title">How to fix</span>
+            <span class="priority-badge priority-medium">
+              Medium priority
+            </span>
+            <span class="score-impact">+5 pts</span>
+          </div>
+          <div class="rec-body">
+            <p class="rec-instruction">Add named entities (people, organizations, places) throughout your content. LLMs use named entities to verify a page&#x27;s authority and topical relevance. Include expert names, company names, research institutions, and geographic contexts relevant to your topic.</p>
+            <div class="code-block">
+              <div class="code-block-header">
+                <span>Suggested code</span>
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+              </div>
+              <pre>&amp;lt;!-- Add entity-rich context to your content --&amp;gt;
+&amp;lt;p&amp;gt;According to &amp;lt;span itemprop&#x3D;&quot;name&quot;&amp;gt;Jane Smith&amp;lt;/span&amp;gt;, Head of Research at
+&amp;lt;span itemprop&#x3D;&quot;name&quot;&amp;gt;Acme Corp&amp;lt;/span&amp;gt;, the approach was first developed
+at &amp;lt;span itemprop&#x3D;&quot;name&quot;&amp;gt;MIT&amp;lt;/span&amp;gt; in 2019.&amp;lt;/p&amp;gt;
+
+&amp;lt;!-- Or in JSON-LD --&amp;gt;
+&amp;lt;script type&#x3D;&quot;application/ld+json&quot;&amp;gt;
+{
+  &quot;@context&quot;: &quot;https://schema.org&quot;,
+  &quot;@type&quot;: &quot;Article&quot;,
+  &quot;about&quot;: {
+    &quot;@type&quot;: &quot;Thing&quot;,
+    &quot;name&quot;: &quot;[Your main topic]&quot;
+  },
+  &quot;mentions&quot;: [
+    { &quot;@type&quot;: &quot;Person&quot;, &quot;name&quot;: &quot;Expert Name&quot; },
+    { &quot;@type&quot;: &quot;Organization&quot;, &quot;name&quot;: &quot;Relevant Organization&quot; }
+  ]
+}
+&amp;lt;/script&amp;gt;</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="audit-item">
+        <div class="audit-header">
+          <span class="audit-status-badge badge-fail">
+            FAIL
+          </span>
+          <span class="audit-title">Author byline + credentials present</span>
+          <span class="audit-category-tag tag-aeo">AEO</span>
+        </div>
+
+        <div class="audit-evidence">No author byline found. Missing: rel&#x3D;&quot;author&quot;, itemprop&#x3D;&quot;author&quot;, JSON-LD author field, or &lt;meta name&#x3D;&quot;author&quot;&gt;.</div>
+
+        <div class="recommendation">
+          <div class="rec-header">
+            <span class="rec-header-title">How to fix</span>
+            <span class="priority-badge priority-medium">
+              Medium priority
+            </span>
+            <span class="score-impact">+5 pts</span>
+          </div>
+          <div class="rec-body">
+            <p class="rec-instruction">Add an author byline with credentials. LLMs evaluate EEAT (Experience, Expertise, Authoritativeness, Trustworthiness) signals. Pages with identified authors rank higher in AI citation selection.</p>
+            <div class="code-block">
+              <div class="code-block-header">
+                <span>Suggested code</span>
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+              </div>
+              <pre>&amp;lt;!-- HTML author markup --&amp;gt;
+&amp;lt;span rel&#x3D;&quot;author&quot; itemprop&#x3D;&quot;author&quot; itemscope itemtype&#x3D;&quot;https://schema.org/Person&quot;&amp;gt;
+  &amp;lt;span itemprop&#x3D;&quot;name&quot;&amp;gt;Author Name&amp;lt;/span&amp;gt;,
+  &amp;lt;span itemprop&#x3D;&quot;jobTitle&quot;&amp;gt;Senior Engineer&amp;lt;/span&amp;gt; at
+  &amp;lt;span itemprop&#x3D;&quot;worksFor&quot; itemscope itemtype&#x3D;&quot;https://schema.org/Organization&quot;&amp;gt;
+    &amp;lt;span itemprop&#x3D;&quot;name&quot;&amp;gt;Company Name&amp;lt;/span&amp;gt;
+  &amp;lt;/span&amp;gt;
+&amp;lt;/span&amp;gt;
+
+&amp;lt;!-- JSON-LD author --&amp;gt;
+&amp;lt;script type&#x3D;&quot;application/ld+json&quot;&amp;gt;
+{
+  &quot;@context&quot;: &quot;https://schema.org&quot;,
+  &quot;@type&quot;: &quot;Article&quot;,
+  &quot;author&quot;: {
+    &quot;@type&quot;: &quot;Person&quot;,
+    &quot;name&quot;: &quot;Author Name&quot;,
+    &quot;jobTitle&quot;: &quot;Your Title&quot;,
+    &quot;url&quot;: &quot;https://yoursite.com/about/author&quot;
+  }
+}
+&amp;lt;/script&amp;gt;</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="audit-item">
+        <div class="audit-header">
+          <span class="audit-status-badge badge-fail">
+            FAIL
+          </span>
+          <span class="audit-title">Comparison content present</span>
+          <span class="audit-category-tag tag-geo">GEO</span>
+        </div>
+
+        <div class="audit-evidence">No comparison-oriented content found. No headings with &quot;vs&quot;, &quot;alternatives&quot;, &quot;best&quot;, &quot;compared to&quot; patterns, and no comparison tables.</div>
+
+        <div class="recommendation">
+          <div class="rec-header">
+            <span class="rec-header-title">How to fix</span>
+            <span class="priority-badge priority-medium">
+              Medium priority
+            </span>
+            <span class="score-impact">+4 pts</span>
+          </div>
+          <div class="rec-body">
+            <p class="rec-instruction">Add a comparison section or &#x27;vs&#x27; content to your page. LLMs frequently cite pages that compare options, list alternatives, or rank choices because users commonly ask comparison questions. Consider adding an H2 section like &#x27;How [Topic] compares to alternatives&#x27; or a pros/cons table.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PASSED AUDITS -->
+  <div class="section passed-section">
+    <div class="section-header" onclick="toggleSection(this)">
+      <span class="section-title">Passed Audits</span>
+      <span class="section-count pass-count">2 passed</span>
+      <span class="chevron" style="transform: rotate(-90deg)">▾</span>
+    </div>
+    <div class="section-body collapsed">
+      <div class="audit-item passed">
+        <div class="audit-header">
+          <span class="audit-status-badge badge-pass">PASS</span>
+          <span class="audit-title">Direct answer in first paragraph</span>
+          <span class="audit-category-tag tag-aeo">AEO</span>
+        </div>
+        <div class="audit-evidence">First paragraph opens with a direct statement: &quot;a.data-protection-link, a.data-protection-link:hover, a.data-protection-link:active {
+text-decoration: underline;
+       font-family: Helvetica, Arial…&quot;</div>
+      </div>
+      <div class="audit-item passed">
+        <div class="audit-header">
+          <span class="audit-status-badge badge-pass">PASS</span>
+          <span class="audit-title">External citation / link quality</span>
+          <span class="audit-category-tag tag-geo">GEO</span>
+        </div>
+        <div class="audit-evidence">47 non-nofollow external link(s) found. Examples: Data Protection Policy (https://corporate.starhub.com/about-us/legal-notices-and-terms/personal-data-protection/starhub-data-protection-policy.html), Data Protection Policy (https://corporate.starhub.com/about-us/legal-notices-and-terms/personal-data-protection/starhub-data-protection-policy.html), StarHub App (https://links.starhub.com/Wkp6/Download)</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  Generated by <a href="https://github.com/yourusername/llm-citeops" target="_blank">llm-citeops</a> · 7/1/2026, 9:31:51 PM
+</div>
+
+<script>
+  function toggleSection(header) {
+    const body = header.nextElementSibling;
+    const chevron = header.querySelector('.chevron');
+    const isCollapsed = body.classList.contains('collapsed');
+    body.classList.toggle('collapsed');
+    chevron.style.transform = isCollapsed ? 'rotate(0deg)' : 'rotate(-90deg)';
+  }
+
+  function copyCode(btn) {
+    const pre = btn.closest('.code-block').querySelector('pre');
+    const text = pre.innerText;
+    navigator.clipboard.writeText(text).then(() => {
+      btn.textContent = 'Copied!';
+      setTimeout(() => { btn.textContent = 'Copy'; }, 2000);
+    });
+  }
+</script>
+
+</body>
+</html>
