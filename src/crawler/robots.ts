@@ -21,7 +21,7 @@ export async function isAllowed(
       cache.set(origin, robots);
     }
 
-    return robots.isAllowed(pageUrl, 'citeops') ?? true;
+    return robots.isAllowed(pageUrl, 'answerlint') ?? true;
   } catch {
     return true;
   }

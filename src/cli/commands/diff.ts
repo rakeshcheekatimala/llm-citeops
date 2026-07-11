@@ -49,7 +49,7 @@ export function resolveDiffOutputPath(
   format: string
 ): string {
   if (outputPath) return path.resolve(outputPath);
-  return path.resolve(`./citeops-diff-report.${format === 'html' ? 'html' : 'json'}`);
+  return path.resolve(`./answerlint-diff-report.${format === 'html' ? 'html' : 'json'}`);
 }
 
 function printDiffSummary(report: ReturnType<typeof generateDiffReport>): void {
@@ -61,7 +61,7 @@ function printDiffSummary(report: ReturnType<typeof generateDiffReport>): void {
         : chalk.gray;
 
   console.log('\n' + chalk.bold('─'.repeat(60)));
-  console.log(chalk.bold('  citeops AI Visibility Diff'));
+  console.log(chalk.bold('  answerlint AI Visibility Diff'));
   console.log(chalk.bold('─'.repeat(60)));
   console.log(`  Baseline: ${chalk.cyan(report.base.url)}`);
   console.log(`  Current:  ${chalk.cyan(report.head.url)}`);

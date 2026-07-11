@@ -23,7 +23,7 @@ const program = new Command();
 const version = readVersion();
 
 program
-  .name('llm-citeops')
+  .name('answerlint')
   .description(
     'Lighthouse-inspired CLI tool that audits web content for AEO and GEO scores'
   )
@@ -61,7 +61,7 @@ program
   .option('--depth <n>', 'Crawl depth (default: 1)', (v) => parseInt(v, 10), 1)
   .option('--rate <n>', 'Requests per second (default: 1)', (v) => parseFloat(v), 1)
   // Config
-  .option('--config <path>', 'Path to custom .citeops.json config file')
+  .option('--config <path>', 'Path to custom .answerlint.json config file')
   // Comparison
   .option('--compare <url>', 'Compare a target URL against a competitor URL')
   .action(async (opts: Record<string, unknown>) => {

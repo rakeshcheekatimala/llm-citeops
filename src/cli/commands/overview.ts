@@ -20,7 +20,7 @@ function padInner(inner: string, width: number): string {
   return n >= width ? inner : inner + ' '.repeat(width - n);
 }
 
-/** Terminal dashboard: what llm-citeops offers (aligned with README). */
+/** Terminal dashboard: what answerlint offers (aligned with README). */
 export function runOverview(version: string): void {
   const W = 58;
   const indent = '  ';
@@ -34,19 +34,19 @@ export function runOverview(version: string): void {
   console.log(
     c.cyan(
       [
-        '  ██╗     ██╗     ███╗   ███╗       ██████╗██╗████████╗███████╗ ██████╗ ██████╗ ███████╗',
-        '  ██║     ██║     ████╗ ████║      ██╔════╝██║╚══██╔══╝██╔════╝██╔═══██╗██╔══██╗██╔════╝',
-        '  ██║     ██║     ██╔████╔██║█████╗██║     ██║   ██║   █████╗  ██║   ██║██████╔╝███████╗',
-        '  ██║     ██║     ██║╚██╔╝██║╚════╝██║     ██║   ██║   ██╔══╝  ██║   ██║██╔═══╝ ╚════██║',
-        '  ███████╗███████╗██║ ╚═╝ ██║      ╚██████╗██║   ██║   ███████╗╚██████╔╝██║     ███████║',
-        '  ╚══════╝╚══════╝╚═╝     ╚═╝       ╚═════╝╚═╝   ╚═╝   ╚══════╝ ╚═════╝ ╚═╝     ╚══════╝',
+        '   █████╗ ███╗   ██╗███████╗██╗    ██╗███████╗██████╗ ██╗     ██╗███╗   ██╗████████╗',
+        '  ██╔══██╗████╗  ██║██╔════╝██║    ██║██╔════╝██╔══██╗██║     ██║████╗  ██║╚══██╔══╝',
+        '  ███████║██╔██╗ ██║███████╗██║ █╗ ██║█████╗  ██████╔╝██║     ██║██╔██╗ ██║   ██║',
+        '  ██╔══██║██║╚██╗██║╚════██║██║███╗██║██╔══╝  ██╔══██╗██║     ██║██║╚██╗██║   ██║',
+        '  ██║  ██║██║ ╚████║███████║╚███╔███╔╝███████╗██║  ██║███████╗██║██║ ╚████║   ██║',
+        '  ╚═╝  ╚═╝╚═╝  ╚═══╝╚══════╝ ╚══╝╚══╝ ╚══════╝╚═╝  ╚═╝╚══════╝╚═╝╚═╝  ╚═══╝   ╚═╝',
       ].join('\n')
     )
   );
   console.log('');
   console.log(
     c.dim('  ') +
-      c.bold.white('llm-citeops') +
+      c.bold.white('answerlint') +
       c.dim(` v${version}  ·  `) +
       c.cyan('Lighthouse-style AEO & GEO audits')
   );
@@ -58,7 +58,7 @@ export function runOverview(version: string): void {
   console.log('');
 
   console.log(boxTop);
-  console.log(line(` ${c.bold.white('✦')} ${c.cyan('citeops capability dashboard')}`));
+  console.log(line(` ${c.bold.white('✦')} ${c.cyan('answerlint capability dashboard')}`));
   console.log(sep);
 
   const padVal = (colored: string, target: number) => {
@@ -139,7 +139,7 @@ export function runOverview(version: string): void {
   console.log(c.bold.white('  Configuration'));
   console.log(
     c.dim(
-      '  Optional `.citeops.json` in project or home; override with `--config <path>`.'
+      '  Optional `.answerlint.json` in project or home; override with `--config <path>`.'
     )
   );
   console.log(
@@ -152,11 +152,11 @@ export function runOverview(version: string): void {
   console.log(
     c.yellow('  💡 ') +
       c.dim('Quick start: ') +
-      c.cyan('llm-citeops audit --url "https://yoursite.com" --output html --output-path ./report.html')
+      c.cyan('answerlint audit --url "https://yoursite.com" --output html --output-path ./report.html')
   );
   console.log(
     c.dim(
-      '     Local smoke:  llm-citeops audit --file ./README.md --output json'
+      '     Local smoke:  answerlint audit --file ./README.md --output json'
     )
   );
   console.log('');

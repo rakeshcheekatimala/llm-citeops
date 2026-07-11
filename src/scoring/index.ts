@@ -1,9 +1,9 @@
-import { AuditResult, CiteopsConfig, ScoreBand, ScoreResult } from '../types/index.js';
+import { AuditResult, AnswerlintConfig, ScoreBand, ScoreResult } from '../types/index.js';
 import { getWeight } from '../config/index.js';
 
 export function computeScores(
   audits: AuditResult[],
-  config: CiteopsConfig
+  config: AnswerlintConfig
 ): ScoreResult {
   const aeoAudits = audits.filter((a) => a.category === 'aeo');
   const geoAudits = audits.filter((a) => a.category === 'geo');
@@ -27,7 +27,7 @@ export function computeScores(
   };
 }
 
-function weightedAvg(audits: AuditResult[], config: CiteopsConfig): number {
+function weightedAvg(audits: AuditResult[], config: AnswerlintConfig): number {
   if (audits.length === 0) return 0;
 
   let weightedSum = 0;

@@ -1,9 +1,9 @@
-# llm-citeops
+# answerlint
 
-[![npm version](https://img.shields.io/npm/v/llm-citeops.svg)](https://www.npmjs.com/package/llm-citeops)
+[![npm version](https://img.shields.io/npm/v/answerlint.svg)](https://www.npmjs.com/package/answerlint)
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](#license)
 
-`llm-citeops` is an open-source CLI for auditing whether web content is ready for answer engines, AI search, and citation-driven discovery.
+`answerlint` is an open-source CLI for auditing whether web content is ready for answer engines, AI search, and citation-driven discovery.
 
 It helps teams answer three practical questions:
 
@@ -29,7 +29,7 @@ A page can rank in search and still be weak for:
 - comparison-friendly content
 - citation readiness
 
-`llm-citeops` is designed to be a lightweight quality gate for that layer of work. Think of it like Lighthouse or ESLint, but for AI visibility signals in content.
+`answerlint` is designed to be a lightweight quality gate for that layer of work. Think of it like Lighthouse or ESLint, but for AI visibility signals in content.
 
 ## What Makes It Different
 
@@ -44,10 +44,10 @@ A page can rank in search and still be weak for:
 
 Current CLI commands:
 
-- `llm-citeops overview`
-- `llm-citeops info`
-- `llm-citeops audit`
-- `llm-citeops diff`
+- `answerlint overview`
+- `answerlint info`
+- `answerlint audit`
+- `answerlint diff`
 
 Supported audit inputs:
 
@@ -68,56 +68,56 @@ Supported outputs:
 
 Fastest way to understand the product:
 
-- website and playground: [llm-citeops.vercel.app](https://llm-citeops.vercel.app/)
-- npm package: [llm-citeops on npm](https://www.npmjs.com/package/llm-citeops)
-- source code: [GitHub repo](https://github.com/rakeshcheekatimala/llm-citeops)
+- website and playground: [answerlint.vercel.app](https://answerlint.vercel.app/)
+- npm package: [answerlint on npm](https://www.npmjs.com/package/answerlint)
+- source code: [GitHub repo](https://github.com/rakeshcheekatimala/answerlint)
 
 Run without installing globally:
 
 ```bash
-npx llm-citeops overview
+npx answerlint overview
 ```
 
 Install globally:
 
 ```bash
-npm install -g llm-citeops
+npm install -g answerlint
 ```
 
 Audit one live page:
 
 ```bash
-llm-citeops audit \
+answerlint audit \
   --url "https://example.com/docs/article" \
   --output html \
-  --output-path ./citeops-report.html
+  --output-path ./answerlint-report.html
 ```
 
 Audit one local file:
 
 ```bash
-llm-citeops audit \
+answerlint audit \
   --file ./examples/sample.html \
   --output json \
-  --output-path ./citeops-report.json
+  --output-path ./answerlint-report.json
 ```
 
 Audit a folder:
 
 ```bash
-llm-citeops audit \
+answerlint audit \
   --dir ./examples \
   --output csv \
-  --output-path ./citeops-batch.csv
+  --output-path ./answerlint-batch.csv
 ```
 
 Audit a sitemap:
 
 ```bash
-llm-citeops audit \
+answerlint audit \
   --sitemap "https://example.com/sitemap.xml" \
   --output csv \
-  --output-path ./citeops-sitemap.csv
+  --output-path ./answerlint-sitemap.csv
 ```
 
 ## Competitor Compare
@@ -127,21 +127,21 @@ Competitor compare audits a target URL and a competitor or reference URL side by
 Use it when you want to understand where another page has stronger answerability, citation, schema, or trust signals.
 
 ```bash
-llm-citeops audit \
+answerlint audit \
   --url "https://example.com/docs/article" \
   --compare "https://competitor.example/docs/article" \
   --output html \
-  --output-path ./citeops-compare-report.html
+  --output-path ./answerlint-compare-report.html
 ```
 
 Generate a JSON comparison report:
 
 ```bash
-llm-citeops audit \
+answerlint audit \
   --url "https://example.com/docs/article" \
   --compare "https://competitor.example/docs/article" \
   --output json \
-  --output-path ./citeops-compare-report.json
+  --output-path ./answerlint-compare-report.json
 ```
 
 Compare mode is currently supported for `--url` audits. Folder, file, and sitemap comparison workflows are planned follow-ups.
@@ -155,27 +155,27 @@ This is useful in CI because it catches content and markup regressions before de
 Compare two existing JSON audit reports:
 
 ```bash
-llm-citeops diff \
+answerlint diff \
   --base-report ./baseline-report.json \
   --head-report ./current-report.json \
   --output html \
-  --output-path ./citeops-diff-report.html
+  --output-path ./answerlint-diff-report.html
 ```
 
 Generate a machine-readable diff:
 
 ```bash
-llm-citeops diff \
+answerlint diff \
   --base-report ./baseline-report.json \
   --head-report ./current-report.json \
   --output json \
-  --output-path ./citeops-diff-report.json
+  --output-path ./answerlint-diff-report.json
 ```
 
 Fail CI when visibility regresses:
 
 ```bash
-llm-citeops diff \
+answerlint diff \
   --base-report ./baseline-report.json \
   --head-report ./current-report.json \
   --fail-on-regression \
@@ -188,7 +188,7 @@ llm-citeops diff \
 Require minimum improvements:
 
 ```bash
-llm-citeops diff \
+answerlint diff \
   --base-report ./baseline-report.json \
   --head-report ./current-report.json \
   --min-composite-delta 0 \
@@ -278,12 +278,12 @@ By default, AEO contributes `50%` and GEO contributes `50%` to the composite sco
 Fail a deployment preview if the page score is below a threshold:
 
 ```bash
-llm-citeops audit \
+answerlint audit \
   --url "$DEPLOY_URL" \
   --ci \
   --threshold 70 \
   --output json \
-  --output-path ./citeops-report.json
+  --output-path ./answerlint-report.json
 ```
 
 Compare mode does not change CI threshold behavior. When `--ci` and `--compare` are used together, the threshold is checked against the target URL composite score only; competitor scores and deltas are reported for context.
@@ -291,11 +291,11 @@ Compare mode does not change CI threshold behavior. When `--ci` and `--compare` 
 Fail a pull request if the current report regresses against the baseline:
 
 ```bash
-llm-citeops diff \
+answerlint diff \
   --base-report ./baseline-report.json \
   --head-report ./current-report.json \
   --output json \
-  --output-path ./citeops-diff-report.json \
+  --output-path ./answerlint-diff-report.json \
   --fail-on-regression \
   --fail-on-high-severity
 ```
@@ -311,7 +311,7 @@ on:
       - main
 
 jobs:
-  citeops:
+  answerlint:
     runs-on: ubuntu-latest
 
     steps:
@@ -325,25 +325,25 @@ jobs:
 
       - name: Audit baseline
         run: |
-          npx llm-citeops audit \
+          npx answerlint audit \
             --url "https://example.com/page" \
             --output json \
             --output-path ./baseline-report.json
 
       - name: Audit preview
         run: |
-          npx llm-citeops audit \
+          npx answerlint audit \
             --url "$DEPLOY_PREVIEW_URL" \
             --output json \
             --output-path ./current-report.json
 
       - name: Compare AI visibility
         run: |
-          npx llm-citeops diff \
+          npx answerlint diff \
             --base-report ./baseline-report.json \
             --head-report ./current-report.json \
             --output html \
-            --output-path ./citeops-diff-report.html \
+            --output-path ./answerlint-diff-report.html \
             --fail-on-regression
 ```
 
@@ -359,10 +359,10 @@ Exit codes:
 ## Command Reference
 
 ```text
-llm-citeops overview
-llm-citeops info
+answerlint overview
+answerlint info
 
-llm-citeops audit [options]
+answerlint audit [options]
   --url <url>
   --file <path>
   --dir <path>
@@ -379,7 +379,7 @@ llm-citeops audit [options]
   --models <list>
   --compare <url>
 
-llm-citeops diff [options]
+answerlint diff [options]
   --base-report <path>
   --head-report <path>
   --output <format>                 html | json
@@ -410,8 +410,8 @@ Current implementation notes:
 Optional config loading order:
 
 1. `--config <path>`
-2. `.citeops.json` in the current project
-3. `.citeops.json` in the home directory
+2. `.answerlint.json` in the current project
+3. `.answerlint.json` in the home directory
 
 Example:
 
@@ -454,8 +454,8 @@ Respect `robots.txt`, rate limits, and site terms when auditing third-party URLs
 ## Local Development
 
 ```bash
-git clone https://github.com/rakeshcheekatimala/llm-citeops.git
-cd llm-citeops
+git clone https://github.com/rakeshcheekatimala/answerlint.git
+cd answerlint
 npm install
 npm run lint
 npm run build

@@ -152,7 +152,7 @@ test('trust signals audit captures strong EEAT signals and flags missing ones', 
         <meta name="author" content="A. Author" />
         <meta property="article:published_time" content="2026-01-01T00:00:00Z" />
         <script type="application/ld+json">
-          {"publisher":{"name":"CiteOps"},"citation":"https://example.org/source","about":{"name":"AEO"}}
+          {"publisher":{"name":"AnswerLint"},"citation":"https://example.org/source","about":{"name":"AEO"}}
         </script>
       </head><body>
         <a href="https://developer.mozilla.org/docs/Web/HTML">MDN</a>

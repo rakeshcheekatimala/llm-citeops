@@ -1,6 +1,6 @@
-# Contributing to llm-citeops
+# Contributing to answerlint
 
-Thanks for contributing to `llm-citeops`.
+Thanks for contributing to `answerlint`.
 
 This project aims to stay simple, deterministic, and useful for operators. The core idea is:
 
@@ -18,8 +18,8 @@ Requirements:
 Install and build:
 
 ```bash
-git clone https://github.com/rakeshcheekatimala/llm-citeops.git
-cd llm-citeops
+git clone https://github.com/rakeshcheekatimala/answerlint.git
+cd answerlint
 npm install
 npm run lint
 npm run build

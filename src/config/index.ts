@@ -1,8 +1,8 @@
 import fs from 'fs';
 import path from 'path';
-import { CiteopsConfig, DEFAULT_WEIGHTS } from '../types/index.js';
+import { AnswerlintConfig, DEFAULT_WEIGHTS } from '../types/index.js';
 
-const DEFAULT_CONFIG: CiteopsConfig = {
+const DEFAULT_CONFIG: AnswerlintConfig = {
   audit: {
     aeo_weight: 0.5,
     geo_weight: 0.5,
@@ -19,20 +19,20 @@ const DEFAULT_CONFIG: CiteopsConfig = {
   },
 };
 
-export function loadConfig(configPath?: string): CiteopsConfig {
+export function loadConfig(configPath?: string): AnswerlintConfig {
   const searchPaths = [
     configPath,
-    path.join(process.cwd(), '.citeops.json'),
-    path.join(process.env.HOME ?? '', '.citeops.json'),
+    path.join(process.cwd(), '.answerlint.json'),
+    path.join(process.env.HOME ?? '', '.answerlint.json'),
   ].filter(Boolean) as string[];
 
-  let fileConfig: Partial<CiteopsConfig> = {};
+  let fileConfig: Partial<AnswerlintConfig> = {};
 
   for (const p of searchPaths) {
     if (fs.existsSync(p)) {
       try {
         const raw = fs.readFileSync(p, 'utf-8');
-        fileConfig = JSON.parse(raw) as Partial<CiteopsConfig>;
+        fileConfig = JSON.parse(raw) as Partial<AnswerlintConfig>;
         break;
       } catch {
         throw new Error(`Invalid JSON in config file: ${p}`);
@@ -44,9 +44,9 @@ export function loadConfig(configPath?: string): CiteopsConfig {
 }
 
 function mergeConfig(
-  defaults: CiteopsConfig,
-  override: Partial<CiteopsConfig>
-): CiteopsConfig {
+  defaults: AnswerlintConfig,
+  override: Partial<AnswerlintConfig>
+): AnswerlintConfig {
   return {
     audit: {
       aeo_weight: override.audit?.aeo_weight ?? defaults.audit.aeo_weight,
@@ -70,7 +70,7 @@ function mergeConfig(
 }
 
 export function getWeight(
-  config: CiteopsConfig,
+  config: AnswerlintConfig,
   auditId: string
 ): number {
   return (

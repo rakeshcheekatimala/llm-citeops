@@ -141,7 +141,7 @@ test('JSON, CSV, and HTML reporters return content and write files', () => {
 
   assert.equal(JSON.parse(json).url, report.url);
   assert.match(csv, /pass_count,fail_count,warn_count/);
-  assert.match(html, /citeops Report/);
+  assert.match(html, /answerlint Report/);
   assert.equal(fs.existsSync(jsonPath), true);
   assert.equal(fs.existsSync(csvPath), true);
   assert.equal(fs.existsSync(htmlPath), true);
@@ -383,9 +383,9 @@ test('output path resolver respects explicit paths and format defaults', () => {
 
   const htmlDefault = resolveOutputPath(undefined, 'html');
   const csvDefault = resolveOutputPath(undefined, 'csv');
-  assert.ok(htmlDefault.endsWith('citeops-report.html'));
-  assert.ok(csvDefault.endsWith('citeops-report.csv'));
+  assert.ok(htmlDefault.endsWith('answerlint-report.html'));
+  assert.ok(csvDefault.endsWith('answerlint-report.csv'));
 
   const diffDefault = resolveDiffOutputPath(undefined, 'json');
-  assert.ok(diffDefault.endsWith('citeops-diff-report.json'));
+  assert.ok(diffDefault.endsWith('answerlint-diff-report.json'));
 });

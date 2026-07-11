@@ -21,7 +21,7 @@ import {
 test('overview command prints the capability dashboard', async () => {
   const { logs } = await captureConsole(() => runOverview('1.2.3'));
   const output = logs.join('\n');
-  assert.match(output, /llm-citeops/);
+  assert.match(output, /answerlint/);
   assert.match(output, /automated checks/);
 });
 
@@ -225,7 +225,7 @@ test('runAudit compares target and competitor URL reports', async () => {
     assert.equal(typeof report.comparison.leader.label, 'string');
     assert.ok(Array.isArray(report.comparison.competitor_edges));
     assert.ok(Array.isArray(report.comparison.improve_first));
-    assert.match(logs.join('\n'), /citeops Compare Summary/);
+    assert.match(logs.join('\n'), /answerlint Compare Summary/);
     assert.match(logs.join('\n'), /Improve first|Competitor edge/);
   } finally {
     await server.close();

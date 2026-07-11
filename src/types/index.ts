@@ -126,7 +126,7 @@ export interface QueryResult {
   evidence?: string;
 }
 
-export interface CiteopsConfig {
+export interface AnswerlintConfig {
   audit: {
     aeo_weight: number;
     geo_weight: number;
