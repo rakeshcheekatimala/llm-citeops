@@ -10,7 +10,7 @@ export class ExitCalledError extends Error {
   }
 }
 
-export function createTempDir(prefix = 'citeops-test-'): string {
+export function createTempDir(prefix = 'answerlint-test-'): string {
   return mkdtempSync(path.join(tmpdir(), prefix));
 }
 

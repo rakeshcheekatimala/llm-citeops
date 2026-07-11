@@ -1,4 +1,4 @@
-# Claude Code Instructions for citeops
+# Claude Code Instructions for answerlint
 
 This document provides project-specific guidance for Claude Code agents working in this repository.
 
@@ -7,7 +7,7 @@ Write, Edit, Glob remain unchanged.
 
 ## Project Overview
 
-**citeops** is a TypeScript/Node.js tool for automated web auditing with citations.
+**answerlint** is a TypeScript/Node.js tool for automated web auditing with citations.
 
 - **Main entry**: src/cli/
 - **Audits**: src/audits/ (aeo, seo, performance, security)

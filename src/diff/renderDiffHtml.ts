@@ -226,7 +226,7 @@ export function renderDiffHtml(report: DiffReport): string {
       </section>
     </div>
   </main>
-  <script type="application/json" id="citeops-diff-data">${escapeHtml(
+  <script type="application/json" id="answerlint-diff-data">${escapeHtml(
     JSON.stringify(report)
   )}</script>
 </body>

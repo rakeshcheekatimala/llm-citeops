@@ -203,7 +203,7 @@ function renderHtmlReport(coverage, worstFiles) {
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>llm-citeops Coverage Report</title>
+  <title>answerlint Coverage Report</title>
   <style>
     :root {
       --bg: #f5f3ef;
@@ -334,7 +334,7 @@ function renderHtmlReport(coverage, worstFiles) {
 <body>
   <div class="shell">
     <section class="hero">
-      <div class="eyebrow">llm-citeops · Test Coverage</div>
+      <div class="eyebrow">answerlint · Test Coverage</div>
       <h1>Coverage Report</h1>
       <div class="meta">Generated ${escapeHtml(new Date(coverage.generatedAt).toLocaleString())}</div>
       <div class="grid">

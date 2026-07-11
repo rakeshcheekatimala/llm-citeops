@@ -5,7 +5,7 @@ import {
   AuditDelta,
   AuditOptions,
   AuditResult,
-  CiteopsConfig,
+  AnswerlintConfig,
   ComparisonInsight,
   ComparisonLeader,
   ComparisonReport,
@@ -93,11 +93,11 @@ export async function runAudit(options: AuditOptions): Promise<void> {
     }
 
     if (options.output === 'json') {
-      const outPath = options.outputPath ?? './citeops-report.json';
+      const outPath = options.outputPath ?? './answerlint-report.json';
       generateJsonReport(comparisonReport ?? firstReport, outPath);
       console.log(chalk.green(`\nJSON report saved to ${outPath}`));
     } else if (options.output === 'csv') {
-      const outPath = options.outputPath ?? './citeops-report.csv';
+      const outPath = options.outputPath ?? './answerlint-report.csv';
       if (comparisonReport) {
         generateCsvComparisonReport(comparisonReport, outPath);
       } else {
@@ -108,7 +108,7 @@ export async function runAudit(options: AuditOptions): Promise<void> {
       // HTML (default)
       const outPath =
         options.outputPath ??
-        `./citeops-report-${new Date().toISOString().replace(/[:.]/g, '-')}.html`;
+        `./answerlint-report-${new Date().toISOString().replace(/[:.]/g, '-')}.html`;
       generateHtmlReport(comparisonReport ?? firstReport, outPath);
       console.log(chalk.green(`\nHTML report saved to ${outPath}`));
     }
@@ -182,7 +182,7 @@ function validateCompareOptions(options: AuditOptions): boolean {
 
 function auditPages(
   pages: PageContent[],
-  config: CiteopsConfig,
+  config: AnswerlintConfig,
   spinner: ReturnType<typeof ora>
 ): Report[] {
   const reports: Report[] = [];
@@ -374,7 +374,7 @@ function printSummary(report: Report): void {
   const label = bandLabel(scores.band);
 
   console.log('\n' + chalk.bold('─'.repeat(60)));
-  console.log(chalk.bold('  citeops Audit Summary'));
+  console.log(chalk.bold('  answerlint Audit Summary'));
   console.log(chalk.bold('─'.repeat(60)));
   console.log(`  URL: ${chalk.cyan(report.url)}`);
   console.log(`  Composite: ${chalk.hex(color).bold(String(scores.composite))} / 100 — ${chalk.hex(color)(label)}`);
@@ -421,7 +421,7 @@ function printComparisonSummary(report: ComparisonReport): void {
         : chalk.yellow;
 
   console.log('\n' + chalk.bold('─'.repeat(60)));
-  console.log(chalk.bold('  citeops Compare Summary'));
+  console.log(chalk.bold('  answerlint Compare Summary'));
   console.log(chalk.bold('─'.repeat(60)));
   console.log(`  Target:     ${chalk.cyan(target.url)}`);
   console.log(`  Competitor: ${chalk.cyan(competitor.url)}`);
@@ -485,5 +485,5 @@ export function resolveOutputPath(
 ): string {
   if (outputPath) return path.resolve(outputPath);
   const ext = format === 'json' ? 'json' : format === 'csv' ? 'csv' : 'html';
-  return path.resolve(`./citeops-report.${ext}`);
+  return path.resolve(`./answerlint-report.${ext}`);
 }

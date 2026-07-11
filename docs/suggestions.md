@@ -1,6 +1,6 @@
 # Suggestions
 
-This document collects practical follow-up improvements for `llm-citeops` so they can be picked up later without crowding the main package documentation.
+This document collects practical follow-up improvements for `answerlint` so they can be picked up later without crowding the main package documentation.
 
 ## Near-term improvements
 
@@ -60,7 +60,7 @@ Why it matters:
 ### 2. Better onboarding
 
 - Add a `docs/examples.md` page with common commands
-- Add a `.citeops.json` example file
+- Add a `.answerlint.json` example file
 - Add “when to use `html`, `json`, or `csv`” examples
 
 ### 3. Clearer boundaries

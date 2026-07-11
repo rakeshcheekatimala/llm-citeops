@@ -1,4 +1,4 @@
-# citeops — requirements.md
+# answerlint — requirements.md
 
 > A Lighthouse-inspired CLI tool that audits web content for AEO (Answer Engine Optimization) and GEO (Generative Engine Optimization) scores, and delivers actionable recommendations to improve AI citation visibility.
 
@@ -8,11 +8,11 @@
 
 ### 1.1 Vision
 
-Citeops is a CLI audit tool that tells content and product teams how well their pages perform inside LLM-generated responses — and shows them exactly what to change to improve that performance. It is to AI visibility what Google Lighthouse is to web performance.
+Answerlint is a CLI audit tool that tells content and product teams how well their pages perform inside LLM-generated responses — and shows them exactly what to change to improve that performance. It is to AI visibility what Google Lighthouse is to web performance.
 
-Like Lighthouse, citeops does **not** edit your content. It audits any URL or local file, scores it across 12 AEO/GEO checks, and produces a detailed report with prioritized, copy-paste-ready recommendations for every failing audit.
+Like Lighthouse, answerlint does **not** edit your content. It audits any URL or local file, scores it across 12 AEO/GEO checks, and produces a detailed report with prioritized, copy-paste-ready recommendations for every failing audit.
 
-> **Lighthouse principle:** citeops tells you what is wrong, why it matters, and exactly how to fix it. You implement the fix.
+> **Lighthouse principle:** answerlint tells you what is wrong, why it matters, and exactly how to fix it. You implement the fix.
 
 ### 1.2 Core user personas
 
@@ -74,7 +74,7 @@ Composite  = (AEO_score × 0.5) + (GEO_score × 0.5)
 Percentile = rank against opt-in community benchmark dataset  [Phase 3]
 ```
 
-Weights are user-configurable via `.citeops.json`.
+Weights are user-configurable via `.answerlint.json`.
 
 ### 2.5 Score bands
 
@@ -110,7 +110,7 @@ Weights are user-configurable via `.citeops.json`.
 
 ## 4. Recommendation engine
 
-For every failing audit, citeops generates a structured recommendation block that includes:
+For every failing audit, answerlint generates a structured recommendation block that includes:
 
 1. **What failed** — the exact element, text, or missing signal (evidence snippet)
 2. **Why it matters** — one-sentence explanation of how this affects AEO/GEO citation rate
@@ -187,7 +187,7 @@ Query real LLMs with topic-relevant questions and measure whether the target pag
 | Tier 2 (opt-in) | Gemini 1.5 Pro, Perplexity | No | Web-grounded, citation-native |
 | Tier 3 (power users) | Llama 3 via Ollama | No | No API cost, requires local infra |
 
-Enable via: `--probe --models gpt4o,claude` or configure in `.citeops.json`.
+Enable via: `--probe --models gpt4o,claude` or configure in `.answerlint.json`.
 
 ### 5.3 Probe query generation
 
@@ -213,37 +213,37 @@ Auto-generated from page content:
 ### 6.1 Installation
 
 ```bash
-npm install -g llm-citeops
+npm install -g answerlint
 # or
-npx llm-citeops audit --url <url>
+npx answerlint audit --url <url>
 ```
 
 ### 6.2 Core commands
 
 ```bash
 # Basic audit — any URL (read-only, generates recommendations)
-llm-citeops audit --url https://example.com/page
+answerlint audit --url https://example.com/page
 
 # Audit a competitor page
-llm-citeops audit --url https://competitor.com/article
+answerlint audit --url https://competitor.com/article
 
 # Audit a local file before publishing
-llm-citeops audit --file ./content/article.md
+answerlint audit --file ./content/article.md
 
 # Batch audit — full site via sitemap
-llm-citeops audit --sitemap https://example.com/sitemap.xml
+answerlint audit --sitemap https://example.com/sitemap.xml
 
 # With LLM probe — measure actual citation visibility
-llm-citeops audit --url https://example.com/page --probe --models gpt4o,claude
+answerlint audit --url https://example.com/page --probe --models gpt4o,claude
 
 # Compare your page against a competitor
-llm-citeops audit --url https://example.com/page --compare https://competitor.com/page
+answerlint audit --url https://example.com/page --compare https://competitor.com/page
 
 # CI mode — exits with code 1 if composite score below threshold
-llm-citeops audit --url https://example.com/page --threshold 70 --ci
+answerlint audit --url https://example.com/page --threshold 70 --ci
 
 # Save report to specific path
-llm-citeops audit --url https://example.com/page --output json --output-path ./report.json
+answerlint audit --url https://example.com/page --output json --output-path ./report.json
 ```
 
 ### 6.3 Output formats
@@ -254,7 +254,7 @@ llm-citeops audit --url https://example.com/page --output json --output-path ./r
 --output csv      # Batch summary across multiple URLs
 ```
 
-### 6.4 Configuration file — `.citeops.json`
+### 6.4 Configuration file — `.answerlint.json`
 
 ```json
 {
@@ -286,20 +286,20 @@ llm-citeops audit --url https://example.com/page --output json --output-path ./r
 ### 7.1 GitHub Actions example
 
 ```yaml
-- name: LLM citeops audit
+- name: AnswerLint audit
   run: |
-    npx llm-citeops audit \
+    npx answerlint audit \
       --url ${{ env.STAGING_URL }} \
       --threshold 70 \
       --ci \
       --output json \
-      --output-path ./citeops-report.json
+      --output-path ./answerlint-report.json
 
 - name: Upload report
   uses: actions/upload-artifact@v3
   with:
-    name: llm-citeops-report
-    path: ./citeops-report.json
+    name: answerlint-report
+    path: ./answerlint-report.json
 ```
 
 ### 7.2 Exit codes
@@ -378,7 +378,7 @@ The HTML report is a single self-contained file, styled like a Lighthouse report
 - [ ] JSON report — full schema per §8.2
 - [ ] CSV report — batch summary
 - [ ] CI mode — `--threshold`, exit codes
-- [ ] `.citeops.json` config support
+- [ ] `.answerlint.json` config support
 
 ### Phase 2 — v2 (LLM probe mode)
 
@@ -388,7 +388,7 @@ The HTML report is a single self-contained file, styled like a Lighthouse report
 - [ ] Ollama connector — Llama 3 self-hosted (Tier 3)
 - [ ] Citation detection — URL mention, domain mention, semantic paraphrase match
 - [ ] Per-model scoring + weighted composite visibility score
-- [ ] 7-day result cache (`~/.citeops/cache/`)
+- [ ] 7-day result cache (`~/.answerlint/cache/`)
 - [ ] Probe results section in HTML + JSON report
 
 ### Phase 3 — v3 (competitor comparison + benchmarks)
