@@ -68,7 +68,7 @@ Supported outputs:
 
 Fastest way to understand the product:
 
-- website and playground: [answerlint.vercel.app](https://answerlint.vercel.app/)
+- website and playground: [useanswerlint.com](https://useanswerlint.com/)
 - npm package: [answerlint on npm](https://www.npmjs.com/package/answerlint)
 - source code: [GitHub repo](https://github.com/rakeshcheekatimala/answerlint)
 
