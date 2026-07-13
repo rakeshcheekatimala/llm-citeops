@@ -58,6 +58,37 @@ Handlebars.registerHelper('deltaClass', (n: number) =>
 
 let compiledTemplate: HandlebarsTemplateDelegate | null = null;
 
+function readPackageMetadata(): { homepage: string; version: string } {
+  const candidates = [
+    path.join(__dirname, '../package.json'),
+    path.join(__dirname, '../../package.json'),
+    path.join(__dirname, '../../../package.json'),
+    path.join(process.cwd(), 'package.json'),
+  ];
+
+  for (const candidate of candidates) {
+    if (!fs.existsSync(candidate)) continue;
+
+    try {
+      const pkg = JSON.parse(fs.readFileSync(candidate, 'utf-8')) as {
+        homepage?: string;
+        version?: string;
+      };
+      return {
+        homepage: pkg.homepage ?? 'https://useanswerlint.com',
+        version: pkg.version ?? '0.0.0',
+      };
+    } catch {
+      // Keep report generation resilient even if a nearby package.json is malformed.
+    }
+  }
+
+  return {
+    homepage: 'https://useanswerlint.com',
+    version: '0.0.0',
+  };
+}
+
 function getTemplate(): HandlebarsTemplateDelegate {
   if (compiledTemplate) return compiledTemplate;
 
@@ -84,6 +115,7 @@ function getTemplate(): HandlebarsTemplateDelegate {
 
 export function generateHtmlReport(report: ReportOutput, outputPath?: string): string {
   const template = getTemplate();
+  const packageMetadata = readPackageMetadata();
   let comparisonReport: ComparisonReport | null = null;
   let targetReport: Report;
 
@@ -98,6 +130,8 @@ export function generateHtmlReport(report: ReportOutput, outputPath?: string): s
     report: targetReport,
     comparisonReport,
     generatedAt: new Date(report.timestamp).toLocaleString(),
+    packageHomepage: packageMetadata.homepage,
+    packageVersion: packageMetadata.version,
     scoreColor: bandColor(targetReport.scores.band),
     bandLabel: bandLabel(targetReport.scores.band),
   });
