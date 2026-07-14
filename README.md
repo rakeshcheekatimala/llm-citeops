@@ -10,6 +10,7 @@ It helps teams answer three practical questions:
 - Is this page structured clearly enough for AI systems to summarize, trust, and cite?
 - How does this page compare with a competitor or reference page?
 - Did this pull request improve or weaken AI visibility before it ships?
+- Is the site publishing a clean, valid `llms.txt` roadmap for AI agents?
 
 The package reads pages, local files, folders, sitemaps, or existing audit reports, runs a deterministic AEO/GEO rubric, and produces reports with scores, evidence, and recommended fixes.
 
@@ -36,6 +37,7 @@ A page can rank in search and still be weak for:
 - **Deterministic by default**: no hidden LLM judge is required to score a page.
 - **Evidence-backed**: every audit produces a pass, warning, or failure with supporting evidence.
 - **CI-friendly**: use score thresholds and diff gates to fail a build when visibility regresses.
+- **LLM roadmap automation**: generate and lint `llms.txt` / `llms-full.txt` from source content during builds.
 - **Readable for humans**: HTML reports make it easy for content, SEO, and engineering teams to review the same findings.
 - **Reusable for tooling**: JSON and CSV outputs are stable enough for dashboards, PR comments, and downstream automation.
 - **Useful before shipping**: AI Visibility Diff compares baseline and pull request reports before changes go live.
@@ -48,6 +50,8 @@ Current CLI commands:
 - `answerlint info`
 - `answerlint audit`
 - `answerlint diff`
+- `answerlint llms generate`
+- `answerlint llms lint`
 
 Supported audit inputs:
 
@@ -63,6 +67,52 @@ Supported outputs:
 - CSV for batch audit summaries
 - HTML or JSON diff reports for pull request workflows
 - competitor comparison reports when `audit --compare` is used with `--url`
+- generated `llms.txt` and optional `llms-full.txt` for AI agents
+
+## llms.txt Generation & Linting
+
+Generate a site-level AI roadmap from a public website URL. AnswerLint fetches
+the seed page, discovers sitemap URLs when available, falls back to same-site
+homepage links, extracts deterministic titles/descriptions, and writes a valid
+`llms.txt`:
+
+```bash
+answerlint llms generate \
+  --url "https://example.com" \
+  --site-name "Example Site" \
+  --summary "Example Site publishes product docs and implementation guides." \
+  --out ./public \
+  --full
+```
+
+When crawling a preview or staging URL, use `--site` to emit production links:
+
+```bash
+answerlint llms generate \
+  --url "https://preview.example.dev" \
+  --site "https://example.com" \
+  --out ./public
+```
+
+Generate a deterministic AI roadmap from local Markdown, MDX, or HTML content:
+
+```bash
+answerlint llms generate \
+  --dir ./docs \
+  --site "https://example.com" \
+  --site-name "Example Site" \
+  --summary "Example Site publishes product docs and implementation guides." \
+  --out ./public \
+  --full
+```
+
+Validate the generated file in CI:
+
+```bash
+answerlint llms lint ./public/llms.txt --strict --ci
+```
+
+The generator uses deterministic extraction only: frontmatter, HTML metadata, H1s, first paragraphs, URLs, and path-based sectioning. No AI or model key is required. This keeps build output reproducible and reviewable. AI-assisted summaries may be added later as an explicit opt-in layer, but the core feature is designed to be stable in CI.
 
 ## Quick Start
 
@@ -394,6 +444,23 @@ answerlint diff [options]
   --min-aeo-delta <n>
   --min-geo-delta <n>
   --min-citation-readiness-delta <n>
+
+answerlint llms generate [options]
+  --url <url>
+  --dir <path>
+  --sitemap <url>
+  --site <url>                       required with --dir; optional public origin override
+  --site-name <name>
+  --summary <text>
+  --out <dir>
+  --full
+  --max-links <n>
+  --max-full-chars <n>
+
+answerlint llms lint <file>
+  --strict
+  --ci
+  --max-chars <n>
 ```
 
 Current implementation notes:

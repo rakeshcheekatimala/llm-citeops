@@ -301,6 +301,78 @@ test('CLI entrypoint handles overview and missing-input validation', async () =>
   assert.match(missingDiff.output, /Provide both --base-report and --head-report/);
 });
 
+test('CLI entrypoint generates and lints llms.txt files', async () => {
+  const tempDir = createTempDir('answerlint-llms-cli-');
+
+  const generated = await runCli([
+    'llms',
+    'generate',
+    '--dir',
+    fixturePath('examples'),
+    '--site',
+    'https://example.com',
+    '--site-name',
+    'Example Site',
+    '--summary',
+    'Example Site publishes sample AI visibility content.',
+    '--out',
+    tempDir,
+    '--full',
+  ]);
+  assert.equal(generated.code, 0);
+  assert.match(generated.output, /llms.txt saved/);
+  assert.equal(fs.existsSync(path.join(tempDir, 'llms.txt')), true);
+  assert.equal(fs.existsSync(path.join(tempDir, 'llms-full.txt')), true);
+
+  const linted = await runCli([
+    'llms',
+    'lint',
+    path.join(tempDir, 'llms.txt'),
+    '--strict',
+    '--ci',
+  ]);
+  assert.equal(linted.code, 0);
+  assert.match(linted.output, /lint passed/);
+});
+
+test('CLI llms generate crawls a website URL and emits public site links', async () => {
+  const server = await createLlmsGenerateServer();
+  const tempDir = createTempDir('answerlint-llms-url-cli-');
+
+  try {
+    const generated = await runCli([
+      'llms',
+      'generate',
+      '--url',
+      `${server.origin}/`,
+      '--site',
+      'https://example.com',
+      '--site-name',
+      'Example Site',
+      '--summary',
+      'Example Site publishes docs and API references for AI agents.',
+      '--out',
+      tempDir,
+      '--max-links',
+      '5',
+    ]);
+
+    assert.equal(generated.code, 0);
+    assert.match(generated.output, /Discovered 3 sources/);
+    assert.match(generated.output, /llms.txt saved/);
+
+    const llmsTxt = fs.readFileSync(path.join(tempDir, 'llms.txt'), 'utf-8');
+    assert.match(llmsTxt, /# Example Site/);
+    assert.match(llmsTxt, /https:\/\/example.com\/docs\/quick-start/);
+    assert.match(llmsTxt, /## Docs/);
+    assert.match(llmsTxt, /Quick Start/);
+    assert.match(llmsTxt, /## API/);
+    assert.match(llmsTxt, /API Reference/);
+  } finally {
+    await server.close();
+  }
+});
+
 async function runCli(args: string[]): Promise<{ code: number; output: string }> {
   return await new Promise((resolve, reject) => {
     const child = spawn(
@@ -322,6 +394,80 @@ async function runCli(args: string[]): Promise<{ code: number; output: string }>
       resolve({ code: code ?? 0, output });
     });
   });
+}
+
+async function createLlmsGenerateServer(): Promise<{
+  origin: string;
+  close: () => Promise<void>;
+}> {
+  const server = http.createServer((req, res) => {
+    if (req.url === '/robots.txt') {
+      res.setHeader('content-type', 'text/plain; charset=utf-8');
+      res.end(`Sitemap: http://${req.headers.host}/sitemap.xml`);
+      return;
+    }
+
+    if (req.url === '/sitemap.xml') {
+      res.setHeader('content-type', 'application/xml; charset=utf-8');
+      res.end(`<?xml version="1.0" encoding="UTF-8"?>
+        <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+          <url><loc>http://${req.headers.host}/docs/quick-start</loc></url>
+          <url><loc>http://${req.headers.host}/api/reference</loc></url>
+        </urlset>`);
+      return;
+    }
+
+    res.setHeader('content-type', 'text/html; charset=utf-8');
+
+    if (req.url === '/') {
+      res.end(`
+        <!doctype html>
+        <html>
+          <head>
+            <title>Example Site</title>
+            <meta name="description" content="Example Site publishes docs and API references for AI agents.">
+          </head>
+          <body><main><h1>Example Site</h1><p>AI-ready docs.</p></main></body>
+        </html>
+      `);
+      return;
+    }
+
+    if (req.url === '/docs/quick-start') {
+      res.end(cliPageHtml('Quick Start', 'Install the package and publish llms.txt from your website.'));
+      return;
+    }
+
+    if (req.url === '/api/reference') {
+      res.end(cliPageHtml('API Reference', 'Use the API reference to integrate generated AI roadmaps.'));
+      return;
+    }
+
+    res.statusCode = 404;
+    res.end('');
+  });
+
+  await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve));
+  const address = server.address();
+  assert.ok(address && typeof address === 'object');
+
+  return {
+    origin: `http://127.0.0.1:${address.port}`,
+    close: () => new Promise((resolve) => server.close(() => resolve())),
+  };
+}
+
+function cliPageHtml(title: string, description: string): string {
+  return `
+    <!doctype html>
+    <html>
+      <head>
+        <title>${title}</title>
+        <meta name="description" content="${description}">
+      </head>
+      <body><main><h1>${title}</h1><p>${description}</p></main></body>
+    </html>
+  `;
 }
 
 async function createCompareServer(): Promise<{
