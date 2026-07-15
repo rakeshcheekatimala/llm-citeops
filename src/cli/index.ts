@@ -6,6 +6,7 @@ import { join } from 'path';
 import { Command } from 'commander';
 import { runAudit } from './commands/audit.js';
 import { runDiff } from './commands/diff.js';
+import { runLlmsGenerate, runLlmsLint } from './commands/llms.js';
 import { runOverview } from './commands/overview.js';
 import { DiffOutputFormat } from '../diff/types.js';
 import { AuditOptions, OutputFormat } from '../types/index.js';
@@ -145,6 +146,59 @@ program
       minAeoDelta: opts.minAeoDelta as number | undefined,
       minGeoDelta: opts.minGeoDelta as number | undefined,
       minCitationReadinessDelta: opts.minCitationReadinessDelta as number | undefined,
+    });
+  });
+
+const llms = program
+  .command('llms')
+  .description('Generate and lint llms.txt files for AI agents');
+
+llms
+  .command('generate')
+  .description('Generate llms.txt and optionally llms-full.txt from local or crawled content')
+  .option('--dir <path>', 'Generate from a local directory of .md, .mdx, or .html files')
+  .option('--url <url>', 'Generate from a website URL, using sitemap discovery when available')
+  .option('--sitemap <url>', 'Generate from URLs listed in a sitemap.xml')
+  .option('--site <url>', 'Public site origin used for generated links (required with --dir)')
+  .option('--site-name <name>', 'Site or project name for the H1 heading')
+  .option('--summary <text>', 'Short blockquote summary for the generated llms.txt')
+  .option('--out <dir>', 'Output directory for llms.txt files', '.')
+  .option('--full', 'Also generate llms-full.txt with cleaned page text', false)
+  .option('--max-links <n>', 'Maximum links to include in llms.txt', (v) => parseInt(v, 10), 80)
+  .option(
+    '--max-full-chars <n>',
+    'Maximum characters to include in llms-full.txt',
+    (v) => parseInt(v, 10),
+    200000
+  )
+  .action(async (opts: Record<string, unknown>) => {
+    await runLlmsGenerate({
+      dir: opts.dir as string | undefined,
+      url: opts.url as string | undefined,
+      sitemap: opts.sitemap as string | undefined,
+      site: opts.site as string,
+      siteName: opts.siteName as string | undefined,
+      summary: opts.summary as string | undefined,
+      outDir: opts.out as string,
+      full: Boolean(opts.full),
+      maxLinks: typeof opts.maxLinks === 'number' ? opts.maxLinks : 80,
+      maxFullChars: typeof opts.maxFullChars === 'number' ? opts.maxFullChars : 200000,
+    });
+  });
+
+llms
+  .command('lint')
+  .description('Validate an llms.txt file against the Markdown structure expected by agents')
+  .argument('<file>', 'Path to llms.txt')
+  .option('--strict', 'Treat warnings as failures', false)
+  .option('--ci', 'Exit with code 1 when lint fails', false)
+  .option('--max-chars <n>', 'Recommended character budget for compact llms.txt', (v) => parseInt(v, 10), 100000)
+  .action(async (file: string, opts: Record<string, unknown>) => {
+    await runLlmsLint({
+      file,
+      strict: Boolean(opts.strict),
+      ci: Boolean(opts.ci),
+      maxChars: typeof opts.maxChars === 'number' ? opts.maxChars : 100000,
     });
   });
 

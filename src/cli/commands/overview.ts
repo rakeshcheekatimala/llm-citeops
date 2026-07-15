@@ -72,6 +72,7 @@ export function runOverview(version: string): void {
   console.log(stat('automated checks', '12', c.green));
   console.log(stat('report formats', 'html · json · csv', c.blue));
   console.log(stat('input modes', 'url · file · dir · sitemap', c.yellow));
+  console.log(stat('AI roadmap files', 'llms.txt · llms-full.txt', c.green));
   console.log(stat('CI exit codes', '0 · 1 · 2 · 3', c.magenta));
   console.log(boxBot);
   console.log('');
@@ -103,6 +104,7 @@ export function runOverview(version: string): void {
   row('--file', 85, 'offline markdown or HTML');
   row('--dir', 70, 'batch local content');
   row('--sitemap', 90, 'many URLs (robots unless --ignore-robots)');
+  row('llms', 80, 'generate and lint AI roadmaps');
   console.log('');
 
   console.log(c.bold.white('  Outputs'));
